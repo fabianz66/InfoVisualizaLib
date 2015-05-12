@@ -1,0 +1,1 @@
+*InfoVisualizaLib* es una librería de alto rendimiento para la generación, visualización e interacción con datos cuantitativos y cualitativos, implementada en el lenguaje *Processing* . Esta librería permite la manipulación de grandes conjuntos de datos brindando un buen rendimiento en cuanto a velocidad de despliegue y utilización de memoria.
