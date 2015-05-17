@@ -5,8 +5,7 @@ public class GraphicSet extends VisualSet {
   public static final int PATH=2;
   public static final int AREA=3;
   public static final int OVAL=4;
-  public static final int SLIDE=5;
-  
+  public static final int SLIDE=5;  
   public static final int STATIC=0;
   public static final int DYNAMIC=1;
 

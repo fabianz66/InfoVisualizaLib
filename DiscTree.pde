@@ -63,6 +63,28 @@ public class DiscTree
   }  
   
   /**
+   * Draws the tree.
+   * returns @{true} if success or @{false} is there was an error
+  **/ 
+  public boolean draw(GraphicSet pSet, int pCenterX, int pCenterY)
+  {
+    if(mRootNode == null)
+    {
+      println("Data not loaded");
+      return false;
+    }
+    
+    if(pSet == null)
+    {
+      println("Set can not be null");
+      return false;
+    }
+    
+    //Starts drawing the tree
+    return mRootNode.draw(pSet, pCenterX, pCenterY);    
+  }
+  
+  /**
   * Prints the tree in console
   **/
   public void debug()
@@ -78,6 +100,10 @@ public class DiscTree
 
 public class Node
 {
+  
+  //Constants
+  private int RADIUS = 10;
+  private int CHILDREN_ORBIT_RADIUS = 5*RADIUS;
   
   //Attributes
   private String mName;
@@ -118,6 +144,72 @@ public class Node
       }
     }
     return inserted;
+  }
+  
+  /**
+   * Draws this node according to its children.
+   * returns @{true} if success or @{false} is there was an error
+  **/ 
+  public boolean draw(GraphicSet pSet, int pCenterX, int pCenterY)
+  {
+    
+    //First we must calculate the children orbit circumf   
+    float circum = 0;
+    for(Node child : mChildren) {
+       circum += child.getDiameter();
+    }
+    
+    //Check if it is bigger than default
+    float defaultCircum = 2*3.14*CHILDREN_ORBIT_RADIUS;
+    if(circum < defaultCircum) {
+      circum = defaultCircum;
+    }
+    
+    //Draw children arround circum    
+
+    
+    //Draws children c
+    int i = pSet.beginShape(GraphicSet.OVAL);
+    pSet.vertex(pCenterX,pCenterX);
+    pSet.vertex(CHILDREN_ORBIT_RADIUS, CHILDREN_ORBIT_RADIUS);
+    pSet.endShape();
+    
+    //Draws itself after the children.
+    i = pSet.beginShape(GraphicSet.OVAL);
+    pSet.vertex(pCenterX,pCenterX);
+    pSet.vertex(RADIUS, RADIUS);
+    pSet.endShape();
+    pSet.setLabel(i, mName);
+    return true;
+  }
+  
+  /**
+  */
+  public float getDiameter()
+  {
+    float diameter;
+    if(isLeaf())
+    {
+      diameter = 2*RADIUS;
+    }else
+    {
+      //If the node has children. The SUM of its children diameters is approx equals to this node's circumference
+      //
+      float circum = 0;
+      for(Node child : mChildren) {
+        circum += child.getDiameter();         
+      }
+      diameter = circum / 3.14f;
+    }
+    return diameter;
+  }
+  
+  /**
+  * Check if it is a leaf or if it has no children.
+  **/
+  public boolean isLeaf()
+  {
+    return mChildren.size() == 0;
   }
   
   /**
