@@ -11,7 +11,7 @@ void setup() {
 }
 
 
-void Ejemplo2_0() {
+void Ejemplo2_1() {
   size(640, 480);
   app = new GraphicApp(640, 480);
   View view = new View(10, 10, 620, 460);

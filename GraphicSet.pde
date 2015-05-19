@@ -186,6 +186,10 @@ public class GraphicSet extends VisualSet {
     labels[index] = label;
   }
 
+  void setSelectionColor(color _stroke, color _fill) {
+    selStroke=_stroke;selFill=_fill;
+  }
+  
   void setSelected(int index, boolean flag) {
     selected[index]=flag;
   }
@@ -194,6 +198,8 @@ public class GraphicSet extends VisualSet {
     return selected[index];
   }
 
+  int getSelectedId() { return selectedShape; }
+  
   void update() {
     shapes[shapeCount]=coordCount;
     for (int i=0; i<=shapeCount; i++) {
@@ -299,6 +305,7 @@ public class GraphicSet extends VisualSet {
   }
 
   void mousePressed(FPoint p) {
+    if (!selectable) return;
     selectedShape=-1;
     for (int i=0; i<shapeCount; i++) {
       if (p.contains(bbox[i*4], bbox[i*4+1], bbox[i*4+2], bbox[i*4+3])) {
@@ -363,7 +370,7 @@ public class GraphicSet extends VisualSet {
     return coords;
   }
 
-  float[] slice(float cx, float cy, float r1, float r2, float start, float end) {
+  float[] sector(float cx, float cy, float r1, float r2, float start, float end) {
     float[] temp1 = arc(cx, cy, r2, start, end, OPEN);
     float[] temp2 = arc(cx, cy, r1, start, end, OPEN);
     int n = temp1.length;

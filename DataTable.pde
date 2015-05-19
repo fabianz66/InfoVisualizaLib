@@ -62,8 +62,16 @@ class DataTable {
     return names[colIndex];
   }
 
+  void setColName(String name, int colIndex) {
+    names[colIndex] = name;
+  }
+  
   String getColType(int colIndex) {
     return types[colIndex];
+  }
+  
+  void setColType(int colIndex, String type) {
+    types[colIndex] = type;
   }
 
   int addRow() {
