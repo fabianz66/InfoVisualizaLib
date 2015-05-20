@@ -1,4 +1,8 @@
 
+//Constantes
+public static final float ROOT_NODE_ORBIT_RADIUS = 100;
+public static final float SINGLE_NODE_DIAMETER = 10;
+  
 public class DiscTree 
 {
   //Attributes. Global node. There can only be one.
@@ -74,14 +78,18 @@ public class DiscTree
       return false;
     }
     
-    if(pSet == null)
-    {
-      println("Set can not be null");
-      return false;
-    }
+//    if(pSet == null)
+//    {
+//      println("Set can not be null");
+//      return false;
+//    }
     
-    //Starts drawing the tree
-    return mRootNode.draw(pSet, pCenterX, pCenterY);    
+    //Ajusta las orbitas y angulos de todos los nodos
+    mRootNode.setOrbitRadius(ROOT_NODE_ORBIT_RADIUS);
+    
+    //Comienza a dibujarse
+    mRootNode.draw(pSet, pCenterX, pCenterY);    
+    return true;
   }
   
   /**
@@ -98,15 +106,12 @@ public class DiscTree
   }
 }
 
-public class Node
+private class Node
 {
-  
-  //Constants
-  private int RADIUS = 10;
-  private int CHILDREN_ORBIT_RADIUS = 5*RADIUS;
-  
   //Attributes
   private String mName;
+  private float mOrbitRadius;
+  private float[] mChildrenAngles;
   
   //Children elements
   private ArrayList<Node> mChildren;
@@ -117,6 +122,9 @@ public class Node
     mName = pName;
     mChildren = new ArrayList<Node>();
   }
+  
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
   
   //Insert a children to the tree.
   //IMPORTANT: parent must be created first -> Must be first in the file
@@ -137,8 +145,7 @@ public class Node
       for(Node child : mChildren)
       {
         inserted = child.insert(pParentName, pChildName);        
-        if(inserted)
-        {          
+        if(inserted) {          
           break;
         }
       }
@@ -146,71 +153,206 @@ public class Node
     return inserted;
   }
   
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  
   /**
    * Draws this node according to its children.
    * returns @{true} if success or @{false} is there was an error
   **/ 
-  public boolean draw(GraphicSet pSet, int pCenterX, int pCenterY)
+  public void draw(GraphicSet pSet, float pCenterX, float pCenterY)
   {
-    
-    //First we must calculate the children orbit circumf   
-    float circum = 0;
-    for(Node child : mChildren) {
-       circum += child.getDiameter();
+    //Dibuja la orbita si tiene hijos
+    if(mChildren.size() != 0)
+    {
+      fill (0,0,0,0);
+      stroke (#FFFFFF);
+      ellipse (pCenterX, pCenterY, 2*mOrbitRadius, 2*mOrbitRadius);
     }
     
-    //Check if it is bigger than default
-    float defaultCircum = 2*3.14*CHILDREN_ORBIT_RADIUS;
-    if(circum < defaultCircum) {
-      circum = defaultCircum;
+    //Dibuja a los hijos
+    float currentAngle = 0;
+    for(int i=0; i < mChildren.size(); i++)
+    {
+      //Se debe aumentar la mitad del que se va a dibujar, 
+      //porque el circulo empieza a dibujarse en la mitad.
+      if(currentAngle != 0.0) {
+        currentAngle += mChildrenAngles[i]/2;
+      }
+      
+      //Posiciones del hijo       
+      float childX = pCenterX + cos (currentAngle)*mOrbitRadius;
+      float childY = pCenterY + sin (currentAngle)*mOrbitRadius;
+      
+      //Dibuja una linea entre si mismo y el hijo
+      stroke (#0000FF);
+      line(pCenterX, pCenterY, childX, childY);
+      
+      //Manda a dibujar al hijo
+      mChildren.get(i).draw(pSet, childX, childY);
+      
+      //Para dibujar el siguiente, se debe aumentar la mitad del angulo que acabamos de dibujar
+      currentAngle += mChildrenAngles[i]/2;
     }
     
-    //Draw children arround circum    
+    //Se dibuja a si mismo
+//    int id = pSet.beginShape(GraphicSet.OVAL);
+//    pSet.vertex(pCenterX,pCenterX);
+//    pSet.vertex(SINGLE_NODE_DIAMETER, SINGLE_NODE_DIAMETER);
+//    pSet.endShape();     
 
+    //Se dibuja a si mismo
+    fill (#ffedbc);
+    stroke (#A75265);
+    ellipse (pCenterX, pCenterY, SINGLE_NODE_DIAMETER, SINGLE_NODE_DIAMETER);
+  }
+  
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  
+  /**
+  * Establece el valor default la orbita.
+  * Para cada nivel la orbita se hace mas pequena.
+  * La orbita se puede hacer mas grande si los hijos no caben
+  */
+  public void setOrbitRadius(float pOrbitRadius)
+  {
+    //Establece su orbita
+    mOrbitRadius = pOrbitRadius;
     
-    //Draws children c
-    int i = pSet.beginShape(GraphicSet.OVAL);
-    pSet.vertex(pCenterX,pCenterX);
-    pSet.vertex(CHILDREN_ORBIT_RADIUS, CHILDREN_ORBIT_RADIUS);
-    pSet.endShape();
+    //Establece la orbita a los hijos, en caso de que tengan hijos
+    for(Node child : mChildren) {
+       child.setOrbitRadius(pOrbitRadius/2);
+    }
     
-    //Draws itself after the children.
-    i = pSet.beginShape(GraphicSet.OVAL);
-    pSet.vertex(pCenterX,pCenterX);
-    pSet.vertex(RADIUS, RADIUS);
-    pSet.endShape();
-    pSet.setLabel(i, mName);
-    return true;
+    //Ajusta su orbita, por si la de los hijos cambio
+    //Ademas guarda los angulos de los hijos
+    adjustOrbitRadius();
   }
   
   /**
+  * Ajusta el tamano de la orbita segun la cantidad de hijos que tenga.  
+  */
+  public void adjustOrbitRadius()
+  {
+    
+    //Si es hoja no hay que ajustar
+    if(mChildren.size() == 0) {
+      return;
+    }
+    
+    //Intenta con el tamano original que tiene
+    float[] childrenDiameters = new float[mChildren.size()];
+    float[] childrenAngles = new float[mChildren.size()];
+    
+    //Obtiene los diametros de los hijos
+    for(int i=0; i < mChildren.size(); i++) {
+      childrenDiameters[i] = mChildren.get(i).getDiameter();
+    }
+        
+    //Itera hasta encontrar el tamano de orbita que pueda meter a todos los hijos
+    while(!getAnglesForChildren(childrenDiameters, mOrbitRadius, childrenAngles)) 
+    {
+      mOrbitRadius += mOrbitRadius/4; //Aumenta el tamano en un 25 porciento
+    }
+    
+    //Guardas los angulos para cada hijo
+    mChildrenAngles = childrenAngles;
+  }
+  
+  /**
+  * Obtiene el diametro de este nodo.
+  * Si es hoja, es el default. Si no, depende de la orbita.
   */
   public float getDiameter()
   {
-    float diameter;
-    if(isLeaf())
-    {
-      diameter = 2*RADIUS;
+    //Si es hoja no hay que ajustar
+    if(mChildren.size() == 0) {
+      return SINGLE_NODE_DIAMETER;
     }else
     {
-      //If the node has children. The SUM of its children diameters is approx equals to this node's circumference
-      //
-      float circum = 0;
-      for(Node child : mChildren) {
-        circum += child.getDiameter();         
-      }
-      diameter = circum / 3.14f;
+      //La orbita ya esta ajustada
+      return 2*mOrbitRadius;
     }
-    return diameter;
+  }
+  
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  
+  /**
+  * Utiliza el teorema del coseno para calcular el angulo que va a necesita un circulo
+  * segun su diametro dentro de la orbita a la cual pertenece
+  * @return El angulo en radianes que va a necesitar.
+  */
+  private float getAngleForDiameter(float diameter, float orbitRadius)
+  {
+    //Suponemos que el pedazo de la circunferencia que necesita de la Orbita es igual a 1.5 veces el diametro.
+    float scaledDiameter = 1.5*diameter;
+    float temp = (2*orbitRadius*orbitRadius - scaledDiameter*scaledDiameter) / (2*orbitRadius*orbitRadius);
+    return acos( temp );
   }
   
   /**
-  * Check if it is a leaf or if it has no children.
-  **/
-  public boolean isLeaf()
-  {
-    return mChildren.size() == 0;
+  * Obtiene los angulos que van a ocupar los hijos segun sus diametros dentro de la orbita.
+  * @return {true} en caso de que los nodos se acomoden al tamano de la orbita o 
+  * {false} en caso de que la orbita necesite hacerse mas grande para poder caber todos.
+  */
+  private boolean getAnglesForChildren(float[] diameters, float orbitRadius, float[] resultAngles)
+  {  
+    //Los nodos que tienen hijos se ponen primero. Las hojas se acomodan en el espacio que sobra.
+    float nonLeavesTotalAngleInRadians = 0;
+    
+    //Se necesita la cantidad de hojas.
+    int leavesCount = 0;  
+    for(int i=0; i<diameters.length; i++)
+    {  
+      float diameter = diameters[i];
+      if(diameter != SINGLE_NODE_DIAMETER)
+      {
+        //Aqui no es una hoja
+        //Calcula el angulo que va a necesitar este circulo, segun el radio de la Orbita.
+        
+        float neededAngle = getAngleForDiameter(diameter, orbitRadius);
+        nonLeavesTotalAngleInRadians += neededAngle;
+        resultAngles[i] = neededAngle;
+      }else
+      {
+        //Aqui es una hoja
+        leavesCount += 1;      
+      }
+    }
+    
+    //Ahora hay que revisar cuanto espacio queda para las hojas
+    float leavesAvailableAngleInRadians = TWO_PI - nonLeavesTotalAngleInRadians;
+    
+    //Ahora se revisa que ese espacio sea suficiente
+    float singleLeafNeededAngleInRadians = getAngleForDiameter(1.5*SINGLE_NODE_DIAMETER, orbitRadius);
+    float totalLeavesNeededAngleInRadians = leavesCount*singleLeafNeededAngleInRadians;
+    if(leavesAvailableAngleInRadians > totalLeavesNeededAngleInRadians)
+    {
+      //Hay suficiente espacio. Se le debe asignar el angulo a las hojas.
+      float leafAngle = leavesAvailableAngleInRadians/leavesCount;    
+      for(int i=0; i<diameters.length; i++)
+      {  
+        float diameter = diameters[i];
+        if(diameter == SINGLE_NODE_DIAMETER)
+        {
+          resultAngles[i] = leafAngle;
+        }
+      }
+      return true;
+  
+    }else
+    {
+      //No hay suficiente espacio. Hay que hacer la Orbita mas grande.
+      println("Error. Hacer orbita mas grande");
+      return false;
+    }
   }
+
+  
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
   
   /**
   * Prints the name of the node and its children
