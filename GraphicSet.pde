@@ -8,6 +8,10 @@ public class GraphicSet extends VisualSet {
   public static final int STATIC=0;
   public static final int DYNAMIC=1;
 
+  public static final int NONE=0;
+  public static final int SIMPLE=1;
+  public static final int MULTIPLE=2;
+
   int MAX_SHAPES = 10000;
 
   float[] coords;
@@ -41,6 +45,7 @@ public class GraphicSet extends VisualSet {
   int symbolCode=0;
   int labelWidth=40;
   int labelHeight=40;
+  int selectionMode=1;
 
   FBounds extent = new FBounds();
   boolean modified = true;
@@ -72,15 +77,17 @@ public class GraphicSet extends VisualSet {
   float[] getVertex(int shapeId, int index) {
     float[] point = new float[2];
     point[0] = coords[shapes[shapeId]+index*2];
-    point[1] = coords[shapes[shapeId]+index*2-1];
+    point[1] = coords[shapes[shapeId]+index*2+1];
     return point;
   }
 
   float[] getCoords(int shapeId) {
-    int n = getVertexCount(shapeId)*2;
-    float[] aux = new float[n];
-    for (int i=0; i<n; i++)
-      aux[i] = coords[shapes[shapeId]+i];
+    int n = getVertexCount(shapeId);
+    float[] aux = new float[n*2];
+    for (int i=0; i<n; i++) {
+      aux[i*2] = coords[(shapes[shapeId]+i)*2];
+      aux[i*2+1] = coords[(shapes[shapeId]+i)*2+1];
+    }
     return aux;
   }
 
@@ -100,6 +107,25 @@ public class GraphicSet extends VisualSet {
 
   int newShape() {
     return newShape(AREA);
+  }
+
+  void setSelectionMode(int mode) {
+    selectionMode = mode;
+  }
+  
+  void setWeight(int shapeId, int _weight) {
+    if (weights==null)
+      weights = new int[MAX_SHAPES];
+    weights[shapeId] = _weight;
+  }
+
+  int getWeight(int shapeId) {
+    return weights[shapeId];
+  }
+
+  void setLabelSize(int w, int h) {
+    labelWidth = w; 
+    labelHeight = h;
   }
 
   void setMarkAttr(float w, float h, int _location, int _mode) {
@@ -187,9 +213,10 @@ public class GraphicSet extends VisualSet {
   }
 
   void setSelectionColor(color _stroke, color _fill) {
-    selStroke=_stroke;selFill=_fill;
+    selStroke=_stroke;
+    selFill=_fill;
   }
-  
+
   void setSelected(int index, boolean flag) {
     selected[index]=flag;
   }
@@ -198,8 +225,10 @@ public class GraphicSet extends VisualSet {
     return selected[index];
   }
 
-  int getSelectedId() { return selectedShape; }
-  
+  int getSelectedId() { 
+    return selectedShape;
+  }
+
   void update() {
     shapes[shapeCount]=coordCount;
     for (int i=0; i<=shapeCount; i++) {
@@ -243,7 +272,7 @@ public class GraphicSet extends VisualSet {
     float yMid = (vExtent.yMax+vExtent.yMin)/2;
     Symbol symbol = new Symbol();
     for (int i=0; i<=shapeCount; i++) {
-      //if (!vExtent.overlap(bbox[i*4], bbox[i*4+1],bbox[i*4+2], bbox[i*4+3])) continue;
+      if (!vExtent.overlap(bbox[i*4], bbox[i*4+1],bbox[i*4+2], bbox[i*4+3])) continue;
       if (strokes==null)
         pg.stroke(colorMap.getColor(strokeCode));
       if (fills==null)
@@ -305,46 +334,87 @@ public class GraphicSet extends VisualSet {
   }
 
   void mousePressed(FPoint p) {
-    if (!selectable) return;
+    if (selectionMode==NONE) return;
     selectedShape=-1;
     for (int i=0; i<shapeCount; i++) {
       if (p.contains(bbox[i*4], bbox[i*4+1], bbox[i*4+2], bbox[i*4+3])) {
-        float[] coords = getCoords(i);
-        if (!PointInPolygon(p, coords)&&types[i]!=MARK)
-          continue;
-        selected[i] = true;
-        selectedShape=i;
-        layer.selectedShape(i);
+        float[] points = getCoords(i);
+        if (((types[i]==AREA)&&PointInPolygon(p, points))||
+          ((types[i]==PATH)&&(DistancePointPath(p, points)<2))||
+          ((types[i]==MARK))) {
+          selected[i] = !selected[i];
+          if (selected[i]) {
+            selectedShape=i;
+            layer.selectedShape(i);
+          }
+        } else
+          if (selectionMode==SIMPLE)
+            selected[i] = false;
       } else
-        selected[i] = false;
+        if (selectionMode==SIMPLE)
+          selected[i] = false;
     }
   }
 
-  boolean PointInPolygon(FPoint point, float[] coords) {
-    int i, j, nvert = coords.length/2;
+  boolean PointInPolygon(FPoint point, float[] points) {
+    int i, j, n = points.length/2;
     boolean c = false;
 
-    for (i = 0, j = nvert - 1; i < nvert; j = i++) {
-      if ( ( (coords[i*2+1] >= point.y ) != (coords[j*2+1] >= point.y) ) &&
-        (point.x <= (coords[j*2] - coords[i*2]) * (point.y - coords[i*2+1]) / (coords[j*2+1] - coords[i*2+1]) + coords[i*2])
+    for (i = 0, j = n - 1; i < n; j = i++) {
+      if ( ( (points[i*2+1] > point.y ) != (points[j*2+1] > point.y) ) &&
+        (point.x < (points[j*2] - points[i*2]) * (point.y - points[i*2+1]) / (points[j*2+1] - points[i*2+1]) + points[i*2])
         )
         c = !c;
     }
     return c;
   }
-  
+
+
   float[] centroid(float[] coords) {
-    float[] temp = new float[2];
-    int n = coords.length/2;
-    temp[0] = coords[0];
-    temp[1] = coords[1];
-    for (int i=1;i<n;i++) {
-      temp[0] += coords[i*2];
-      temp[1] += coords[i*2+1];
+    int vertexCount = coords.length/2;
+
+    if (vertexCount==1)
+    return new float[] {
+      coords[0], coords[1]
+    };
+
+    float[] centroid = new float[] {
+      0, 0
+    };
+
+    double signedArea = 0.0;
+    double x0 = 0.0; // Current vertex X
+    double y0 = 0.0; // Current vertex Y
+    double x1 = 0.0; // Next vertex X
+    double y1 = 0.0; // Next vertex Y
+    double a = 0.0;  // Partial signed area
+
+    int i=0;
+    for (i=0; i<vertexCount-1; ++i) {
+      x0 = coords[i*2];
+      y0 = coords[i*2+1];
+      x1 = coords[2*(i+1)];
+      y1 = coords[2*(i+1)+1];
+      a = x0*y1 - x1*y0;
+      signedArea += a;
+      centroid[0] += (x0 + x1)*a;
+      centroid[1] += (y0 + y1)*a;
     }
-    temp[0] /=n;
-    temp[1] /=n;
-    return temp;
+
+    x0 = coords[i*2];
+    y0 = coords[i*2+1];
+    x1 = coords[0];
+    y1 = coords[1];
+    a = x0*y1 - x1*y0;
+    signedArea += a;
+    centroid[0] += (x0 + x1)*a;
+    centroid[1] += (y0 + y1)*a;
+
+    signedArea *= 0.5;
+    centroid[0] /= (6.0*signedArea);
+    centroid[1] /= (6.0*signedArea);
+
+    return centroid;
   }
 
   float[] arc(float cx, float cy, float r, float start, float end, int mode) {
@@ -353,7 +423,7 @@ public class GraphicSet extends VisualSet {
     float[] coords = new float[ceil((end-start)*28.65)+extra];
     float a;
     int i=0;
-    for (i=0, a=start; a<=end; a+=0.07, i++) {
+    for (i=0, a=start; a<end; a+=0.07, i++) {
       coords[i*2]=  cos(a)*r + cx;
       coords[i*2+1] = sin(a)*r + cy;
     }
@@ -382,6 +452,55 @@ public class GraphicSet extends VisualSet {
       coords[i*2+n+1] = temp2[n-i*2-1];
     }
     return coords;
+  }
+
+  double lineMagnitude(double x1, double y1, double x2, double y2) {
+    double lineMagnitude = Math.sqrt(Math.pow((x2 - x1), 2)+ Math.pow((y2 - y1), 2));
+    return lineMagnitude;
+  }
+
+  double DistancePointLine(float px, float py, float x1, float y1, float x2, float y2) {
+
+    double DistancePointLine;
+    double LineMag = lineMagnitude(x1, y1, x2, y2);
+
+    if (LineMag < 0.00000001) {
+      DistancePointLine = 9999;
+      return DistancePointLine;
+    }
+
+    float u1 = (((px - x1) * (x2 - x1)) + ((py - y1) * (y2 - y1)));
+    double u = u1 / (LineMag * LineMag);
+
+    if ((u < 0.00001) || (u > 1)) {
+
+      double ix = lineMagnitude(px, py, x1, y1);
+      double iy = lineMagnitude(px, py, x2, y2);
+      if (ix > iy)
+        DistancePointLine = iy;
+      else
+        DistancePointLine = ix;
+    } else {
+      double ix = x1 + u * (x2 - x1);
+      double iy = y1 + u * (y2 - y1);
+      DistancePointLine = lineMagnitude(px, py, ix, iy);
+    }
+    return DistancePointLine;
+  }
+
+  double DistancePointPath(FPoint point, float[] points) {
+    int n = points.length/2;
+
+    float distance=MAX_FLOAT;
+    float temp;
+
+    for (int i=0; i<n-1; i++) {
+      temp = (float)DistancePointLine(point.x, point.y, 
+      points[i*2], points[i*2+1], points[i*2+2], points[i*2+3]);
+      if (distance > temp)
+        distance = temp;
+    }
+    return distance;
   }
 }
 
