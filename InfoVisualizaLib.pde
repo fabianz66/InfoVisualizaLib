@@ -14,10 +14,18 @@ void Ejemplo2_2(){
   
   //Draws tree
   DiscTree tree = new DiscTree(0,0,600,450);  
+  
+  //LOADS FROM CSV
   if(tree.load("CostaRica.txt", ",")) {
     tree.debug();
     tree.draw(set);
   }
+
+  // LOADS FROM JSON
+//  if(tree.loadJSON("costarica.json")) {
+//    tree.debug();
+//    tree.draw(set);
+//  }
   
   //Up[dates screen  
   set.update();  

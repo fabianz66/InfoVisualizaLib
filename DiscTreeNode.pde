@@ -3,10 +3,11 @@
 // Creada por: Fabian Zamora Ramirez
 //------------------------------------------------------------------------------
   
-private class DiscTreeNode
+public class DiscTreeNode
 {
   //Attributes
   private String mName;
+  private float mValue;
   private float mOrbitRadius;
   private float[] mChildrenAngles;
   
@@ -14,9 +15,10 @@ private class DiscTreeNode
   private ArrayList<DiscTreeNode> mChildren;
   
   //Constructor
-  public DiscTreeNode(String pName)
+  public DiscTreeNode(String pName, float pValue)
   {
     mName = pName;
+    mValue = pValue;
     mChildren = new ArrayList<DiscTreeNode>();
   }
   
@@ -27,7 +29,7 @@ private class DiscTreeNode
   //Insert a children to the tree.
   //IMPORTANT: parent must be created first -> Must be first in the file
   //Otherwise it is not inserted
-  public boolean insert(String pParentName, String pChildName)
+  public boolean insert(String pParentName, String pChildName, float pChildValue)
   {
     //Success
     boolean inserted = false;
@@ -35,14 +37,14 @@ private class DiscTreeNode
     //We are at the parent
     if(pParentName.equals(mName))
     {
-      mChildren.add(new DiscTreeNode(pChildName));
+      mChildren.add(new DiscTreeNode(pChildName, pChildValue));
       println("Inserted:"+pChildName + " into:" + pParentName);
       inserted = true;
     }else
     {
       for(DiscTreeNode child : mChildren)
       {
-        inserted = child.insert(pParentName, pChildName);        
+        inserted = child.insert(pParentName, pChildName, pChildValue);        
         if(inserted) {          
           break;
         }
@@ -51,17 +53,28 @@ private class DiscTreeNode
     return inserted;
   }
   
+  // Add a child to this node
+  public void addChild(DiscTreeNode pChild)
+  {
+    mChildren.add(pChild);
+  }
+  
   //------------------------------------------------------------------------------
   // Draw methods
   //------------------------------------------------------------------------------
   
-  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius)
+  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius, String pLabel)
   {
     int id = set.newShape();
     float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, TWO_PI, OPEN);      
     for (int j=0; j<coords.length/2; j++) {
       set.vertex(coords[j*2],coords[j*2+1]);
     }            
+    
+    //Add label
+    if(pLabel != null) {
+      set.setLabel(id, pLabel);
+    }
 
 // Native processing    
 //    fill (#ffedbc);
@@ -118,7 +131,7 @@ private class DiscTreeNode
     }
     
     //Se dibuja a si mismo
-    drawCircle(pSet, pCenterX, pCenterY, SINGLE_NODE_DIAMETER);
+    drawCircle(pSet, pCenterX, pCenterY, SINGLE_NODE_DIAMETER, mName);
   }
   
   //------------------------------------------------------------------------------
