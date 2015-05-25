@@ -23,7 +23,6 @@ public class VectorLayer extends Layer {
           newFeature=false;
         }
         if (x==xIni&&y==yIni) {
-          shapes.newPart();
           if (first) first = false;
           else continue;
         }
@@ -31,14 +30,13 @@ public class VectorLayer extends Layer {
       } else if (list[0].charAt(0)=='"') {
         int c = parseInt(list[list.length-1]);
         n = abs(c);
-        if (c==1) shapes.beginShape(GraphicSet.MARK);
-        else if (c<0) shapes.beginShape(GraphicSet.PATH);
-        else if (c>2) shapes.beginShape(GraphicSet.AREA);
+        if (c==1) shapes.newShape(GraphicSet.MARK);
+        else if (c<0) shapes.newShape(GraphicSet.PATH);
+        else if (c>2) shapes.newShape(GraphicSet.AREA);
         else print(c);
         newFeature=true;
         first=true;
       }
-      if (n==0) shapes.endShape();
     }
     shapes.update();
     setVisualSet(shapes);

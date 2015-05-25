@@ -7,7 +7,6 @@ class DataTable {
   private String[] names;
   private String[] types;
   private boolean[] selected;
-  private int[] sort;
 
   private int colCount=0;
   private int rowCount=0;
@@ -18,7 +17,6 @@ class DataTable {
     names = new String[MAX_COLS];
     types = new String[MAX_COLS];
     selected = new boolean[MAX_ROWS];
-    sort = new int[MAX_ROWS];
   }
 
   DataTable(int maxRows, int maxCols) {
@@ -28,31 +26,30 @@ class DataTable {
     names = new String[MAX_COLS];
     types = new String[MAX_COLS];
     selected = new boolean[MAX_ROWS];
-    sort = new int[MAX_ROWS];
   }
 
   String getString(int rowIndex, int colIndex) {
-    return columns[colIndex][sort[rowIndex]];
+    return columns[colIndex][rowIndex];
   }
 
   int getInt(int rowIndex, int colIndex) {
-    return parseInt(columns[colIndex][sort[rowIndex]]);
+    return parseInt(columns[colIndex][rowIndex]);
   }
 
   float getFloat(int rowIndex, int colIndex) {
-    return parseFloat(columns[colIndex][sort[rowIndex]]);
+    return parseFloat(columns[colIndex][rowIndex]);
   }
 
   void setString(int rowIndex, int colIndex, String value) {
-    columns[colIndex][sort[rowIndex]] = value;
+    columns[colIndex][rowIndex] = value;
   }
 
   void setInt(int rowIndex, int colIndex, int value) {
-    columns[colIndex][sort[rowIndex]] = value+"";
+    columns[colIndex][rowIndex] = value+"";
   }
 
   void setFloat(int rowIndex, int colIndex, float value) {
-    columns[colIndex][sort[rowIndex]] = value+"";
+    columns[colIndex][rowIndex] = value+"";
   }
 
   int getColIndex(String colName) {
@@ -65,8 +62,16 @@ class DataTable {
     return names[colIndex];
   }
 
+  void setColName(String name, int colIndex) {
+    names[colIndex] = name;
+  }
+  
   String getColType(int colIndex) {
     return types[colIndex];
+  }
+  
+  void setColType(int colIndex, String type) {
+    types[colIndex] = type;
   }
 
   int addRow() {
@@ -76,7 +81,6 @@ class DataTable {
     index = rowCount;
     rowCount++;
     selected[index]=false;
-    sort[index]=index;
     return index;
   }
 
@@ -100,12 +104,13 @@ class DataTable {
     return colCount;
   }
 
-  void sort(int colIndex) {
+  int[] sort(int colIndex) {
     int i, j, aux;
     String dataString="";
     float dataNumber=0;
     boolean test;
-    resetSort();
+    int[] sort = new int[rowCount];
+    resetSort(sort);
     for (i=1; i<rowCount; i++) {
       j=i;
       aux = sort[i]; 
@@ -126,9 +131,10 @@ class DataTable {
       }
       sort[j]=aux;
     }
+    return sort;
   }
 
-  private void resetSort() {
+  private void resetSort(int[] sort) {
     for (int i=0; i<rowCount; i++) sort[i]=i;
   }
 
@@ -157,19 +163,18 @@ class DataTable {
   }
 
   void setSelected(int rowIndex, boolean flag) {
-    selected[sort[rowIndex]]=flag;
+    selected[rowIndex]=flag;
     if (flag) layer.selectedRow(rowIndex);
   }
 
   boolean isSelected(int rowIndex) {
-    return selected[sort[rowIndex]];
+    return selected[rowIndex];
   }
 
   private void expandRows() {
     MAX_ROWS = round(MAX_ROWS*1.5);
     String[] newColumn = new String[MAX_ROWS];
     boolean[] newSelected = new boolean[MAX_ROWS];
-    int[] newSort = new int[MAX_ROWS];
     for (int i=0; i<colCount; i++ ) {      
       for (int j=0; j<rowCount; j++) 
         newColumn[j]=columns[i][j];
@@ -177,14 +182,11 @@ class DataTable {
     }
     for (int i=0; i<MAX_ROWS; i++) {
       if (i<rowCount) {
-        newSort[i] = sort[i];
         newSelected[i] = selected[i];
       } else {
-        newSort[i] = i;
         newSelected[i] = false;
       }
     }
-    sort = newSort;
     selected = newSelected;
   }
 

@@ -3,6 +3,7 @@ public class VisualSet {
   
   public ColorMap colorMap = new ColorMap();
   public SymbolTable symbolTable = new SymbolTable();
+  boolean selectable=true;
 
   FBounds extent;
   boolean modified = true;
@@ -20,7 +21,14 @@ public class VisualSet {
     symbolTable = _symbolTable;
   }
   
-  void update() {}
+  void setSelectionMode(boolean mode) {
+    selectable = mode;
+  }
+  
+  void selectedShape(int shapeId) {
+  }
+  
+void update() {}
   
   void draw(PGraphics pg, View view) {}
   

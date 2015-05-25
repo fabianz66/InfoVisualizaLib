@@ -104,18 +104,18 @@ public class View extends Container {
   }
 
   void keyPressed() {
-    if (keyCode == UP)
-      pan(UP,10);
-    else if (keyCode == DOWN)
-      pan(DOWN,10);
-    else if (keyCode == RIGHT)
-      pan(RIGHT,10);
-    else if (keyCode == LEFT)
-      pan(LEFT,10);
-    else if (keyCode == TAB)
+    if (keyCode == TAB)
       zoomIn(10);
-    else if (keyCode == BACKSPACE)
+    if (keyCode == BACKSPACE)
       zoomOut(10);
+    if (keyCode == UP)
+      pan(UP, 10);
+    else if (keyCode == DOWN)
+      pan(DOWN, 10);
+    else if (keyCode == RIGHT)
+      pan(RIGHT, 10);
+    else if (keyCode == LEFT)
+      pan(LEFT, 10);
   }
 }
 

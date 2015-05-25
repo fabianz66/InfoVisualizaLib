@@ -2,29 +2,41 @@
 GraphicApp app;
 
 void setup() {
+  Ejemplo2_2();
+}
 
-  size(640,480);
-//  app = new GraphicApp(640,480);
-//  View view = new View(10,10,620,460);
-//  Layer layer = new Layer(0,0,600,450);
-//  GraphicSet set = new GraphicSet();
+void Ejemplo2_2(){
+  
+  size(640, 480);
+  app = new GraphicApp(640,480);
+  View view = new View(10,10,620,460);
+  GraphicSet set = new GraphicSet();
   
   //Draws tree
-  DiscTree tree = new DiscTree();
+  DiscTree tree = new DiscTree(0,0,600,450);  
   if(tree.load("CostaRica.txt", ",")) {
     tree.debug();
-    tree.draw(null, 320, 240);
+    tree.draw(set);
   }
   
   //Up[dates screen  
-//  set.update();  
-//  layer.setVisualSet(set);
-//  view.add(layer);  
-//  view.zoomToExtent(layer.getExtent());
-//  app.add(view); 
+  set.update();  
+  tree.setVisualSet(set);
+  view.add(tree);  
+  view.zoomToExtent(tree.getExtent());
+  app.add(view); 
 }
 
 void draw() {
-//  app.draw();
+  app.draw();
+}
+
+void mousePressed() {
+  Point p = new Point(mouseX, mouseY);
+  app.mousePressed(p);
+}
+
+void keyPressed() {
+  app.keyPressed();
 }
 

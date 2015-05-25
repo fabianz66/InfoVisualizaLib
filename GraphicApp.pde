@@ -16,8 +16,8 @@ public class GraphicApp {
     views.draw(null);
   }
   
-  void mousePressed() {
-    FPoint p = new FPoint(mouseX, mouseY);
+  void mousePressed(Point _p) {
+    FPoint p = new FPoint(_p.x, _p.y);
     views.mousePressed(p);
   }
   

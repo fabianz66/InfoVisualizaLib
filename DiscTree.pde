@@ -3,10 +3,22 @@
 public static final float ROOT_NODE_ORBIT_RADIUS = 100;
 public static final float SINGLE_NODE_DIAMETER = 10;
   
-public class DiscTree 
+public class DiscTree extends Layer
 {
   //Attributes. Global node. There can only be one.
   private Node mRootNode; 
+  private float mCenterX;
+  private float mCenterY;
+  
+  /**
+  * Constructor
+  */
+  DiscTree(int x, int y, int w, int h) {
+    super(x, y, w, h);
+    
+    mCenterX = x + w/2;
+    mCenterY = y + y/2;
+  }
   
   /**
   * Loads the hierarchy from a file.
@@ -70,7 +82,7 @@ public class DiscTree
    * Draws the tree.
    * returns @{true} if success or @{false} is there was an error
   **/ 
-  public boolean draw(GraphicSet pSet, int pCenterX, int pCenterY)
+  public boolean draw(GraphicSet pSet)
   {
     if(mRootNode == null)
     {
@@ -78,17 +90,17 @@ public class DiscTree
       return false;
     }
     
-//    if(pSet == null)
-//    {
-//      println("Set can not be null");
-//      return false;
-//    }
+    if(pSet == null)
+    {
+      println("Set can not be null");
+      return false;
+    }
     
     //Ajusta las orbitas y angulos de todos los nodos
     mRootNode.setOrbitRadius(ROOT_NODE_ORBIT_RADIUS);
     
     //Comienza a dibujarse
-    mRootNode.draw(pSet, pCenterX, pCenterY);    
+    mRootNode.draw(pSet, mCenterX, mCenterY);    
     return true;
   }
   
@@ -106,6 +118,10 @@ public class DiscTree
   }
 }
 
+//------------------------------------------------------------------------------
+// NODO  
+//------------------------------------------------------------------------------
+  
 private class Node
 {
   //Attributes
@@ -162,12 +178,10 @@ private class Node
   **/ 
   public void draw(GraphicSet pSet, float pCenterX, float pCenterY)
   {
+        
     //Dibuja la orbita si tiene hijos
-    if(mChildren.size() != 0)
-    {
-      fill (0,0,0,0);
-      stroke (#FFFFFF);
-      ellipse (pCenterX, pCenterY, 2*mOrbitRadius, 2*mOrbitRadius);
+    if(mChildren.size() != 0) {
+//        drawCircle(pSet, pCenterX, pCenterY, 2*mOrbitRadius);
     }
     
     //Dibuja a los hijos
@@ -185,8 +199,7 @@ private class Node
       float childY = pCenterY + sin (currentAngle)*mOrbitRadius;
       
       //Dibuja una linea entre si mismo y el hijo
-      stroke (#0000FF);
-      line(pCenterX, pCenterY, childX, childY);
+      drawLine(pSet, pCenterX, pCenterY, childX, childY);
       
       //Manda a dibujar al hijo
       mChildren.get(i).draw(pSet, childX, childY);
@@ -196,15 +209,7 @@ private class Node
     }
     
     //Se dibuja a si mismo
-//    int id = pSet.beginShape(GraphicSet.OVAL);
-//    pSet.vertex(pCenterX,pCenterX);
-//    pSet.vertex(SINGLE_NODE_DIAMETER, SINGLE_NODE_DIAMETER);
-//    pSet.endShape();     
-
-    //Se dibuja a si mismo
-    fill (#ffedbc);
-    stroke (#A75265);
-    ellipse (pCenterX, pCenterY, SINGLE_NODE_DIAMETER, SINGLE_NODE_DIAMETER);
+    drawCircle(pSet, pCenterX, pCenterY, SINGLE_NODE_DIAMETER);
   }
   
   //------------------------------------------------------------------------------
@@ -350,6 +355,34 @@ private class Node
     }
   }
 
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  
+  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius)
+  {
+    int id = set.newShape();
+    float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, TWO_PI, OPEN);      
+    for (int j=0; j<coords.length/2; j++) {
+      set.vertex(coords[j*2],coords[j*2+1]);
+    }            
+
+// Native processing    
+//    fill (#ffedbc);
+//    stroke (#A75265);
+//    ellipse (pCenterX, pCenterY, SINGLE_NODE_DIAMETER, SINGLE_NODE_DIAMETER);
+  }
+  
+  private void drawLine(GraphicSet set, float pStartX, float pStartY, float pFinishX, float pFinishY)
+  {
+    //Path1
+    int id = set.newShape(GraphicSet.PATH);    
+    set.vertex(pStartX, pStartY);
+    set.vertex(pFinishX, pFinishY);
+    
+// Native processing
+//  stroke (#0000FF);
+//  line(pCenterX, pCenterY, childX, childY);
+  }
   
   //------------------------------------------------------------------------------
   //------------------------------------------------------------------------------
