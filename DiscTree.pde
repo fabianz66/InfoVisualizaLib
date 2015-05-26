@@ -20,7 +20,7 @@ public class DiscTree extends Layer
   DiscTree(int x, int y, int w, int h) {
     super(x, y, w, h);    
     mCenterX = x + w/2;
-    mCenterY = y + y/2;
+    mCenterY = y + h/2;
   }
   
   /**

@@ -67,7 +67,7 @@ public class DiscTreeNode
   {
     int id = set.newShape();
     set.setAlpha(id, 1);
-    float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, 6.28, OPEN);      
+    float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, 6.28, PIE);      
     for (int j=0; j<coords.length/2; j++) {
       set.vertex(coords[j*2],coords[j*2+1]);
     }            
