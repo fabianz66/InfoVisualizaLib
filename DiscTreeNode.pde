@@ -66,7 +66,7 @@ public class DiscTreeNode
   private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius, String pLabel)
   {
     int id = set.newShape();
-    set.setAlpha(id, 1);
+    set.setAlpha(id, 255);
     float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, 6.28, PIE);      
     for (int j=0; j<coords.length/2; j++) {
       set.vertex(coords[j*2],coords[j*2+1]);
@@ -104,7 +104,7 @@ public class DiscTreeNode
         
     //Dibuja la orbita si tiene hijos
     if(mChildren.size() != 0) {
-        drawCircle(pSet, pCenterX, pCenterY, 2*mOrbitRadius, null);
+        drawCircle(pSet, pCenterX, pCenterY, mOrbitRadius, null);
     }
     
     //Dibuja a los hijos
@@ -132,7 +132,7 @@ public class DiscTreeNode
     }
     
     //Se dibuja a si mismo
-    drawCircle(pSet, pCenterX, pCenterY, SINGLE_NODE_DIAMETER, mName);
+    drawCircle(pSet, pCenterX, pCenterY, SINGLE_NODE_DIAMETER/2, mName);
   }
   
   //------------------------------------------------------------------------------
