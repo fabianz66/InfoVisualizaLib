@@ -182,7 +182,7 @@ public class DiscTreeNode
     //Itera hasta encontrar el tamano de orbita que pueda meter a todos los hijos
     while(!getAnglesForChildren(childrenDiameters, mOrbitRadius, childrenAngles)) 
     {
-      mOrbitRadius += mOrbitRadius/4; //Aumenta el tamano en un 25 porciento
+      mOrbitRadius += mOrbitRadius/10; //Aumenta el tamano en un 10 porciento
     }
     
     //Guardas los angulos para cada hijo
