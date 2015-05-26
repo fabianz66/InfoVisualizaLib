@@ -4,10 +4,13 @@ public class View extends Container {
   FBounds extent;
   float scale;
   float xCenter, yCenter;
+  PFont helvetica;
 
   View(int x, int y, int w, int h) {
     super(x, y, w, h);
     pg = createGraphics(w, h);
+    helvetica = createFont("Helvetica-Bold", 13);
+    pg.textFont(helvetica);
   }
 
   void setAttr(color _stroke, color _fill, int _weight) {

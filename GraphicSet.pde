@@ -26,12 +26,13 @@ public class GraphicSet extends VisualSet {
   int[] symbols;
   int[] locations;
   int[] modes;
+  int[] alphas;
 
   int selectedShape;
   boolean selected[];
   String[] labels;
   color selStroke = color(244, 0, 0);
-  color selFill = color(244, 0, 0);
+  color selFill = color(244, 0, 0, 128);
   int numSymbol=0;
 
   float wSize=5;
@@ -46,6 +47,7 @@ public class GraphicSet extends VisualSet {
   int labelWidth=40;
   int labelHeight=40;
   int selectionMode=1;
+  int alpha=255;
 
   FBounds extent = new FBounds();
   boolean modified = true;
@@ -121,6 +123,18 @@ public class GraphicSet extends VisualSet {
 
   int getWeight(int shapeId) {
     return weights[shapeId];
+  }
+  
+  void setAlpha(int shapeId, int _alpha) {
+    if (alphas==null)
+      alphas = new int[MAX_SHAPES];
+    for (int i=0; i<MAX_SHAPES;i++)
+      alphas[i]= 255;
+    alphas[shapeId] = _alpha;
+  }
+
+  int getAlpha(int shapeId) {
+    return alphas[shapeId];
   }
 
   void setLabelSize(int w, int h) {
@@ -276,11 +290,13 @@ public class GraphicSet extends VisualSet {
       if (strokes==null)
         pg.stroke(colorMap.getColor(strokeCode));
       if (fills==null)
-        pg.fill(colorMap.getColor(fillCode));
+        pg.fill(colorMap.getColor(fillCode),alpha);
       if (weights==null)  
         pg.strokeWeight(weight);
+      if (alphas!=null)
+        alpha = alphas[i];
       if (fills!=null)
-        pg.fill(colorMap.getColor(fills[i]));
+        pg.fill(colorMap.getColor(fills[i]),alpha);
       if (strokes!=null)
         pg.stroke(colorMap.getColor(strokes[i]));
       if (weights!=null)
@@ -328,7 +344,13 @@ public class GraphicSet extends VisualSet {
         float yCoord = (bbox[i*4+2]+bbox[i*4+3])/2;
         float[] coords = getCoords(i);
         float[] position = centroid(coords);
-        pg.text(labels[i], (position[0]-xMid)*scl+cx, cy-(position[1]-yMid)*scl, labelWidth, labelHeight);
+        float labelW = textWidth(labels[i]);
+        pg.fill(0);
+        pg.stroke(0);
+        pg.rect((position[0]-xMid)*scl+cx+5, cy-(position[1]-yMid)*scl-25, labelW+10, 22); 
+        pg.fill(255);
+        pg.fill(255);
+        pg.text(labels[i], (position[0]-xMid)*scl+cx+10, cy-(position[1]-yMid)*scl-10);
       }
     }
   }
@@ -423,7 +445,7 @@ public class GraphicSet extends VisualSet {
     float[] coords = new float[ceil((end-start)*28.65)+extra];
     float a;
     int i=0;
-    for (i=0, a=start; a<end; a+=0.07, i++) {
+    for (i=0, a=start; a<end; a+=0.0697778, i++) {
       coords[i*2]=  cos(a)*r + cx;
       coords[i*2+1] = sin(a)*r + cy;
     }
