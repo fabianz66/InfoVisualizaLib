@@ -2,7 +2,7 @@
 GraphicApp app;
 
 void setup() {
-  Ejemplo2_2();
+  Ejemplo2_6();
 }
 
 void Ejemplo2_1() {
@@ -86,7 +86,7 @@ void Ejemplo2_3() {
 }
 
 void Ejemplo2_4() {
-size(640, 480);
+  size(640, 480);
   app = new GraphicApp(640, 480);
   View view = new View(10, 10, 620, 460);
   Layer layer = new Layer(0, 0, 600, 450);
@@ -94,21 +94,21 @@ size(640, 480);
   map.load("colormap.txt");
   GraphicSet set = new GraphicSet();
   set.setColorMap(map);
-  
+
   int i = set.newShape(GraphicSet.AREA);
   set.vertex(123.0, 134.0);
   set.vertex(131.0, 223.0);
   set.vertex(245.0, 276.0);
   set.vertex(255.0, 233.0);
-  set.setStrokeCode(i,1);
-  set.setFillCode(i,5);
+  set.setStrokeCode(i, 1);
+  set.setFillCode(i, 5);
 
   int j = set.newShape(GraphicSet.PATH);
   set.vertex(150, 200);
   set.vertex(200, 115);
   set.vertex(255, 250);
-  set.setStrokeCode(j,6);
-  
+  set.setStrokeCode(j, 6);
+
   set.update();
   layer.setVisualSet(set);
   view.add(layer);
@@ -126,27 +126,27 @@ void Ejemplo2_5() {
   SymbolTable symbols = new SymbolTable();
   symbols.load("symboltable.txt");
   set.setSymbolTable(symbols);
-  
+
   int i = set.newShape(GraphicSet.MARK);
   set.vertex(123.0, 134.0);
-  set.setMarkAttr(i,40,20,CENTER,GraphicSet.STATIC);
-  set.setSymbolCode(i,0);
-  
+  set.setMarkAttr(i, 40, 20, CENTER, GraphicSet.STATIC);
+  set.setSymbolCode(i, 0);
+
   i = set.newShape(GraphicSet.MARK);
   set.vertex(190.0, 153.0);
-  set.setMarkAttr(i,20,40,LEFT,GraphicSet.STATIC);
-  set.setSymbolCode(i,1);
-  
+  set.setMarkAttr(i, 20, 40, LEFT, GraphicSet.STATIC);
+  set.setSymbolCode(i, 1);
+
   i = set.newShape(GraphicSet.MARK);
   set.vertex(145.0, 176.0);
-  set.setMarkAttr(i,50,30,TOP,GraphicSet.DYNAMIC);
-  set.setSymbolCode(i,2);
-  
+  set.setMarkAttr(i, 50, 30, TOP, GraphicSet.DYNAMIC);
+  set.setSymbolCode(i, 2);
+
   i = set.newShape(GraphicSet.MARK);
   set.vertex(155.0, 133.0);
-  set.setMarkAttr(i,30,50,BOTTOM,GraphicSet.DYNAMIC);
-  set.setSymbolCode(i,3);
-  
+  set.setMarkAttr(i, 30, 50, BOTTOM, GraphicSet.DYNAMIC);
+  set.setSymbolCode(i, 3);
+
   set.update();
   layer.setVisualSet(set);
   view.add(layer);
@@ -165,32 +165,32 @@ void Ejemplo2_6() {
   SymbolTable symbols = new SymbolTable();
   symbols.load("symboltable.txt");
   set.setSymbolTable(symbols);
-  
+
   int i = set.newShape(GraphicSet.MARK);
   set.vertex(123.0, 134.0);
-  set.setMarkAttr(i,40,20,CENTER,GraphicSet.STATIC);
-  set.setSymbolCode(i,0);
-  set.setLabel(i,"Marca 1");
-  
+  set.setMarkAttr(i, 40, 20, CENTER, GraphicSet.STATIC);
+  set.setSymbolCode(i, 0);
+  set.setLabel(i, "Marca 1");
+
   i = set.newShape(GraphicSet.PATH);
   set.vertex(150, 200);
   set.vertex(200, 115);
   set.vertex(255, 250);
-  set.setLabel(i,"Linea 1");
-  
+  set.setLabel(i, "Linea 1");
+
   i = set.newShape(GraphicSet.AREA);
   set.vertex(50.0, 80.0);
   set.vertex(90.0, 53.0);
   set.vertex(19.0, 15.0);
-  set.setSymbolCode(i,1);
-  set.setLabel(i,"Area 1");
-  
+  set.setSymbolCode(i, 1);
+  set.setLabel(i, "Area 1");
+
   i = set.newShape(GraphicSet.AREA);
   set.vertex(123.0, 134.0);
   set.vertex(245.0, 276.0);
   set.vertex(131.0, 223.0);
-  set.setLabel(i,"Area 2");
-  
+  set.setLabel(i, "Area 2");
+
   set.update();
   layer.setVisualSet(set);
   view.add(layer);
