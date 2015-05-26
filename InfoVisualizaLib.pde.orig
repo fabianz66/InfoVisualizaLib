@@ -121,7 +121,7 @@ void Ejemplo2_4() {
 }
 
 void Ejemplo2_5() {
->>>>>>> arce/master
+>>>>>>> master
   size(640, 480);
   app = new GraphicApp(640,480);
   View view = new View(10,10,620,460);
@@ -224,7 +224,7 @@ void Ejemplo2_6() {
   view.add(layer);
   view.zoomToExtent(layer.getExtent());
   app.add(view);
->>>>>>> arce/master
+>>>>>>> master
 }
 
 void draw() {

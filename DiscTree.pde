@@ -90,9 +90,16 @@ public class DiscTree extends Layer
   public boolean loadJSON(String pFilename)
   {            
     //Load json and parse it
-    JSONObject json = loadJSONObject(pFilename);
-    if(json != null) {         
+    
+    try{
+      
+      //Tries to load json
+      JSONObject json = loadJSONObject(pFilename);    
       mRootNode = nodeFromJSONObject(json);
+      
+    }catch(Exception e)
+    {
+      println("Could not find "+pFilename);
     }
       
     //Check if root node was successfully created
@@ -111,8 +118,8 @@ public class DiscTree extends Layer
   private DiscTreeNode nodeFromJSONObject(JSONObject pObject)
   {
     //Get values
-    String nodeLabel = pObject.getString("label", "");
-    float nodeValue = pObject.getFloat("value", 0.0);
+    String nodeLabel = pObject.getString("name", "");
+    float nodeValue = pObject.getFloat("size", 0.0);
     
     //Create node
     DiscTreeNode node = new DiscTreeNode(nodeLabel, nodeValue);
