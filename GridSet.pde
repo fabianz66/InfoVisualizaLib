@@ -7,6 +7,14 @@ public class GridSet extends VisualSet {
   int nodata;
   int[] values;
   
+  GridSet() {}
+  
+  GridSet(int _ncols, int _nrows, float _xcorner, float _ycorner, float _cellsize, int _nodata) {
+    ncols = _ncols; nrows= _nrows;
+    xcorner = _xcorner; ycorner = _ycorner;
+    cellsize = _cellsize; nodata = _nodata;
+  }
+  
   FBounds getExtent() {
     return new FBounds(xcorner,ycorner,xcorner+ncols*cellsize,ycorner+nrows*cellsize);
   }
