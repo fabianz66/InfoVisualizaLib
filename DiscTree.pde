@@ -56,7 +56,7 @@ public class DiscTree extends Layer
           //We are about to add a children
           String childName = columns[0].trim();
           String parentName = columns[1].trim();
-          float childValue = 0.0;
+          float childValue = -1.0;
           if(!mRootNode.insert(parentName, childName, childValue)) {
             println("Error." + parentName + " not found. " + childName + " was ommitted.");
           }
