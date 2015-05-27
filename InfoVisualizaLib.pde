@@ -31,7 +31,7 @@ void Ejemplo2_2(){
   
     //Color map
   ColorMap map = new ColorMap();
-  map.load("colormap.txt");
+  map.load("palette4.txt");
   set.setColorMap(map);
   
   //Up[dates screen  
