@@ -12,6 +12,8 @@ void Ejemplo2_2(){
   View view = new View(10,10,620,460);
   GraphicSet set = new GraphicSet();
   
+
+  
   //Draws tree
   DiscTree tree = new DiscTree(0,0,600,450);  
   
@@ -26,6 +28,11 @@ void Ejemplo2_2(){
     tree.debug();
     tree.draw(set);
   }
+  
+    //Color map
+  ColorMap map = new ColorMap();
+  map.load("colormap.txt");
+  set.setColorMap(map);
   
   //Up[dates screen  
   set.update();  

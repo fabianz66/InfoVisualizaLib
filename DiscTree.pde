@@ -2,6 +2,8 @@
 //Constantes
 public static final float ROOT_NODE_ORBIT_RADIUS = 100;
 public static final float SINGLE_NODE_DIAMETER = 10;
+public static final int MIN_COLOR_VALUE = 0;
+public static final int MAX_COLOR_VALUE = 8;
   
 //------------------------------------------------------------------------------
 // Representa un arbol en disco
@@ -13,6 +15,8 @@ public class DiscTree extends Layer
   private DiscTreeNode mRootNode; 
   private float mCenterX;
   private float mCenterY;
+  private float mMaxValue = -1;
+  private float mMinValue = -1;
   
   /**
   * Constructor
@@ -24,6 +28,7 @@ public class DiscTree extends Layer
   }
   
   /**
+  * INCOMPLETE. Values are not read.
   * Loads the hierarchy from a column separated file.
   * Files must have only one global line at the beginning. (1 without a parent)
   * All the other lines must have a previously created parent. If a parent is not found, that line is ommitted.
@@ -119,8 +124,15 @@ public class DiscTree extends Layer
   {
     //Get values
     String nodeLabel = pObject.getString("name", "");
-    float nodeValue = pObject.getFloat("size", 0.0);
+    float nodeValue = pObject.getFloat("size", -1);
     
+    //Set new Max and Min Values
+    if(nodeValue > mMaxValue || mMaxValue == -1) {
+      mMaxValue = nodeValue;
+    }else if(nodeValue < mMinValue || mMinValue == -1) {
+      mMinValue = nodeValue;
+    }
+        
     //Create node
     DiscTreeNode node = new DiscTreeNode(nodeLabel, nodeValue);
     
@@ -161,7 +173,7 @@ public class DiscTree extends Layer
     mRootNode.setOrbitRadius(ROOT_NODE_ORBIT_RADIUS);
     
     //Comienza a dibujarse
-    mRootNode.draw(pSet, mCenterX, mCenterY);    
+    mRootNode.draw(pSet, mCenterX, mCenterY, mMaxValue, mMinValue);
     return true;
   }
   
