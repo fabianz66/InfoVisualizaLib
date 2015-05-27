@@ -12,7 +12,7 @@ public class GraphicSet extends VisualSet {
   public static final int SIMPLE=1;
   public static final int MULTIPLE=2;
 
-  int MAX_SHAPES = 10000;
+  int MAX_SHAPES = 100000;
 
   float[] coords;
   float[] bbox;
