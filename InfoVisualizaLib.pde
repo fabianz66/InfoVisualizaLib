@@ -2,14 +2,14 @@
 GraphicApp app;
 
 void setup() {
-  Ejemplo2_6();
+  Ejemplo2_1();
 }
 
 void Ejemplo2_1() {
   size(640, 480);
   app = new GraphicApp(640, 480);
   View view = new View(10, 10, 620, 460);
-  Layer layer = new Layer(0, 0, 600, 450);
+  Layer layer = new Layer(100, 100, 600, 450);
   GraphicSet set = new GraphicSet();
 
   int i = set.newShape(GraphicSet.AREA);
@@ -17,6 +17,7 @@ void Ejemplo2_1() {
   set.vertex(245.0, 276.0);
   set.vertex(131.0, 223.0);
   set.setLabel(i, "HOLA");
+  set.setVisible(i,true);
   i = set.newShape(GraphicSet.MARK);
   set.vertex(110, 220);
   set.setMarkAttr(i, 200, 20, LEFT, GraphicSet.STATIC);

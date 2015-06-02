@@ -30,6 +30,7 @@ public class GraphicSet extends VisualSet {
 
   int selectedShape;
   boolean selected[];
+  boolean visibles[];
   String[] labels;
   color selStroke = color(244, 0, 0);
   color selFill = color(244, 0, 0, 128);
@@ -113,6 +114,15 @@ public class GraphicSet extends VisualSet {
 
   void setSelectionMode(int mode) {
     selectionMode = mode;
+  }
+  
+  void setVisible(int shapeId, boolean flag) {
+    if (visibles==null) {
+      visibles = new boolean[MAX_SHAPES];
+      for (int i=0; i< MAX_SHAPES; i++)
+        visibles[i] = true;
+    }
+    visibles[shapeId] = flag;
   }
   
   void setWeight(int shapeId, int _weight) {
@@ -286,15 +296,16 @@ public class GraphicSet extends VisualSet {
     float yMid = (vExtent.yMax+vExtent.yMin)/2;
     Symbol symbol = new Symbol();
     for (int i=0; i<=shapeCount; i++) {
+      if (visibles!=null && !visibles[i]) continue;
       if (!vExtent.overlap(bbox[i*4], bbox[i*4+1],bbox[i*4+2], bbox[i*4+3])) continue;
+      if (alphas!=null)
+        alpha = alphas[i];
       if (strokes==null)
         pg.stroke(colorMap.getColor(strokeCode));
       if (fills==null)
         pg.fill(colorMap.getColor(fillCode),alpha);
       if (weights==null)  
         pg.strokeWeight(weight);
-      if (alphas!=null)
-        alpha = alphas[i];
       if (fills!=null)
         pg.fill(colorMap.getColor(fills[i]),alpha);
       if (strokes!=null)
@@ -349,7 +360,6 @@ public class GraphicSet extends VisualSet {
         pg.stroke(0);
         pg.rect((position[0]-xMid)*scl+cx+5, cy-(position[1]-yMid)*scl-25, labelW+10, 22); 
         pg.fill(255);
-        pg.fill(255);
         pg.text(labels[i], (position[0]-xMid)*scl+cx+10, cy-(position[1]-yMid)*scl-10);
       }
     }
@@ -358,7 +368,7 @@ public class GraphicSet extends VisualSet {
   void mousePressed(FPoint p) {
     if (selectionMode==NONE) return;
     selectedShape=-1;
-    for (int i=0; i<shapeCount; i++) {
+    for (int i=shapeCount-1; i>=0; i--) {
       if (p.contains(bbox[i*4], bbox[i*4+1], bbox[i*4+2], bbox[i*4+3])) {
         float[] points = getCoords(i);
         if (((types[i]==AREA)&&PointInPolygon(p, points))||
@@ -469,6 +479,7 @@ public class GraphicSet extends VisualSet {
     float[] coords = new float[n*2];
     for (int i=0; i<n; i++)
       coords[i] = temp1[i];
+    
     for (int i=0; i<n/2; i++) {
       coords[i*2+n] = temp2[n-i*2-2];
       coords[i*2+n+1] = temp2[n-i*2-1];
