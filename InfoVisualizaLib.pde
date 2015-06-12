@@ -13,7 +13,8 @@ void setup() {
 //  EjemploJSON01();
 //  EjemploJSON02();
 //  EjemploJSON03();
-  EjemploJSON04();
+//  EjemploJSON04();
+  EjemploDendrogram("Species4.csv",50,Dendrogram.POLAR);
 }
 
 //------------------------------------------------------------------------------
@@ -290,6 +291,22 @@ void EjemploJSON04(){
   view.add(tree);  
   view.zoomToExtent(tree.getExtent());
   app.add(view); 
+}
+
+void EjemploDendrogram(String filename, float scale,int type){
+  size(1000, 1000);
+  app = new GraphicApp(990, 990);
+  View view = new View(10, 10, 990, 990);
+  Layer layer = new Layer(0, 0, 1000,1000);
+  GraphicSet set = new GraphicSet();
+  Dendrogram dendro = new Dendrogram();
+  dendro.setGraphics(set);
+  dendro.paintDendrogram(filename,scale, type);
+  dendro.getGraphics().update();
+  layer.setVisualSet(dendro.getGraphics());
+  view.add(layer);
+  view.zoomToExtent(layer.getExtent());
+  app.add(view);
 }
 
 void draw() {

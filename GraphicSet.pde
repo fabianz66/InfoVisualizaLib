@@ -17,7 +17,7 @@ public class GraphicSet extends VisualSet {
   float[] coords;
   float[] bbox;
   float[] sizes;
-
+  float[] rotations;
   int[] shapes;
   int[] types;
   int[] fills;
@@ -40,6 +40,7 @@ public class GraphicSet extends VisualSet {
   int type=0;
   int mode=1;
   int location=CENTER;
+  float _rotation = 0;
   int fillCode=1;
   int strokeCode=0;
   int weight=1;
@@ -154,10 +155,32 @@ public class GraphicSet extends VisualSet {
       sizes = new float[MAX_SHAPES*2];
       locations = new int[MAX_SHAPES];
       modes = new int[MAX_SHAPES];
+      rotations = new float[MAX_SHAPES];
       for (int i=0; i<MAX_SHAPES; i++) {
         sizes[i*2]=wSize; 
         sizes[i*2+1]=hSize;
         locations[i]=location;
+        modes[i]=mode;
+        rotations[i] = 0;
+      }
+    }
+    sizes[shapeId*2]=w; 
+    sizes[shapeId*2+1]=h;
+    locations[shapeId]=location; 
+    modes[shapeId]=mode;
+  }
+  
+  void setMarkAttr(int shapeId, float w, float h, float rotation, int location, int mode) {
+    if (sizes==null) {
+      sizes = new float[MAX_SHAPES*2];
+      locations = new int[MAX_SHAPES];
+      modes = new int[MAX_SHAPES];
+      rotations = new float[MAX_SHAPES];
+      for (int i=0; i<MAX_SHAPES; i++) {
+        sizes[i*2]=wSize; 
+        sizes[i*2+1]=hSize;
+        locations[i]=location;
+        rotations[i]=0;
         modes[i]=mode;
       }
     }
@@ -165,6 +188,7 @@ public class GraphicSet extends VisualSet {
     sizes[shapeId*2+1]=h;
     locations[shapeId]=location; 
     modes[shapeId]=mode;
+    rotations[shapeId] = rotation;
   }
 
   void setFillCode(int colorCode) { 
@@ -305,7 +329,8 @@ public class GraphicSet extends VisualSet {
       if (sizes!=null) { 
         wSize = sizes[i*2]; 
         hSize = sizes[i*2+1];
-        location = locations[i]; 
+        location = locations[i];
+        _rotation = rotations[i]; 
         mode = modes[i];
       }
       if (selected[i]) {
@@ -317,9 +342,9 @@ public class GraphicSet extends VisualSet {
         if (types[i]==PATH) pg.noFill();
         if (types[i]==MARK) {
           if (mode==STATIC) {
-            symbol.setup(coords[j*2], coords[j*2+1], wSize, hSize, location, symbolTable.coords[symbolCode]);
+            symbol.setup(coords[j*2], coords[j*2+1], wSize, hSize, _rotation, location, symbolTable.coords[symbolCode]);
           } else {
-            symbol.setup(coords[j*2], coords[j*2+1], wSize/scl, hSize/scl, location, symbolTable.coords[symbolCode]);
+            symbol.setup(coords[j*2], coords[j*2+1], wSize/scl, hSize/scl, _rotation, location, symbolTable.coords[symbolCode]);
           }
           bbox[i*4]=symbol.bounds.xMin;
           bbox[i*4+1]=symbol.bounds.xMax;

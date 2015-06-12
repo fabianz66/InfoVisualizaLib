@@ -1,7 +1,7 @@
 public class Dendrogram 
 {
-  static PLAIN = 0;
-  static RADIAL = 1;
+  public static final int PLAIN = 0;
+  public static final int POLAR = 1;
   float leaf_length = 60;
   int X_RANGE = 1000;
   int Y_RANGE = 1500;
@@ -15,7 +15,7 @@ public class Dendrogram
   {
     Graphic_Set = gset;
   }
-  void paintDendrogram(String filename,float SCALE, int TYPE){
+  void paintDendrogram(String filename,float SCALE,int TYPE){
     TableHelper helper = new TableHelper();
     DataTable data = helper.loadCSV(filename,",");
     DendrogramCluster.VAL_SCALE = SCALE;
@@ -35,7 +35,13 @@ public class Dendrogram
     symbols.load("symboltable.txt");
     Graphic_Set.setSymbolTable(symbols);
     mi = millis();
-    paintDendrogram(clustered_list,0,X_RANGE,clustered_list.Similarity);
+    if (TYPE == POLAR)
+    {
+      paintPolarDendrogram(clustered_list,0,X_RANGE,clustered_list.Similarity);
+    } else 
+    {
+      paintDendrogram(clustered_list,0,X_RANGE,clustered_list.Similarity);
+    }
     mf = millis();
     total = mf-mi;
     println("VIS Time: "+total);
@@ -43,6 +49,47 @@ public class Dendrogram
   }
   
   void paintDendrogram(DendrogramCluster clustered_tree,float x_1, float x_2, float y_height)
+  {
+    if (clustered_tree.isLeaf)
+    {
+      float total_range = x_2 -x_1;
+      float x =x_1+total_range/2;
+      float y = y_height-20;
+      int i = Graphic_Set.newShape(GraphicSet.MARK);
+      Graphic_Set.vertex(x, y);
+      Graphic_Set.setSymbolCode(i,2);
+      Graphic_Set.setLabel(i, clustered_tree.leafName);
+      Graphic_Set.setMarkAttr(i, 5, 5, TOP, GraphicSet.STATIC);
+      int j = Graphic_Set.newShape(GraphicSet.PATH);
+      Graphic_Set.vertex(x_1+total_range/2,y_height);
+      Graphic_Set.vertex(x_1+total_range/2,y_height-20);
+    }
+    else{
+      float total_range = x_2 -x_1;
+      int total_children = clustered_tree.children_count;
+      int left_children = clustered_tree.child_node_1.children_count;
+      int right_children = clustered_tree.child_node_2.children_count;
+      float left_child_center  = x_1+((total_range/total_children)*left_children)/2;
+      float right_child_center = x_2-((total_range/total_children)*right_children)/2;
+      float left_child_height  = clustered_tree.child_node_1.Similarity;
+      float right_child_height = clustered_tree.child_node_2.Similarity;
+      
+      float center_left = calculateCenter(clustered_tree.child_node_1,x_1,right_child_center-((total_range/total_children)*right_children)/2);
+      float center_right = calculateCenter(clustered_tree.child_node_2,right_child_center-((total_range/total_children)*right_children)/2,x_2);
+      
+      int i = Graphic_Set.newShape(GraphicSet.PATH);
+      
+      Graphic_Set.vertex(center_left,left_child_height);
+      Graphic_Set.vertex(center_left,y_height);
+      Graphic_Set.vertex(center_right,y_height);
+      Graphic_Set.vertex(center_right,right_child_height);
+      
+      paintDendrogram(clustered_tree.child_node_1,x_1,right_child_center-((total_range/total_children)*right_children)/2,left_child_height); //se invierten las similitudes
+      paintDendrogram(clustered_tree.child_node_2,right_child_center-((total_range/total_children)*right_children)/2,x_2,right_child_height);
+    }
+  }
+  
+  void paintPolarDendrogram(DendrogramCluster clustered_tree,float x_1, float x_2, float y_height)
   {
     if (clustered_tree.isLeaf)
     {
@@ -56,9 +103,10 @@ public class Dendrogram
       float yr = (Y_RANGE-y)*sin(x);
       
       Graphic_Set.vertex(xr, yr);
-      Graphic_Set.setSymbolCode(i,0);
+      Graphic_Set.setSymbolCode(i,8);
       Graphic_Set.setLabel(i, clustered_tree.leafName);
-      Graphic_Set.setMarkAttr(i, 20, 20, CENTER, GraphicSet.STATIC);
+      Graphic_Set.setMarkAttr(i, 80, 80, x,  CENTER, GraphicSet.STATIC);
+      Graphic_Set.setFillCode(i,0);
       i = Graphic_Set.newShape(GraphicSet.PATH);
       Graphic_Set.vertex(xr,yr);
       xr = (Y_RANGE-y-leaf_length)*cos(x);
@@ -92,10 +140,11 @@ public class Dendrogram
         Graphic_Set.vertex(coords[j*2],coords[j*2+1]);
       
       Graphic_Set.vertex(draw_next_right_x,draw_next_right_y);
-      paintDendrogram(clustered_tree.child_node_1,x_1,right_child_center-((total_range/total_children)*right_children)/2,left_child_height); //se invierten las similitudes
-      paintDendrogram(clustered_tree.child_node_2,right_child_center-((total_range/total_children)*right_children)/2,x_2,right_child_height);
+      paintPolarDendrogram(clustered_tree.child_node_1,x_1,right_child_center-((total_range/total_children)*right_children)/2,left_child_height); //se invierten las similitudes
+      paintPolarDendrogram(clustered_tree.child_node_2,right_child_center-((total_range/total_children)*right_children)/2,x_2,right_child_height);
     }
   }
+  
   float calculateCenter(DendrogramCluster clustered_tree,float x_1, float x_2)
   {
     if(clustered_tree.isLeaf)
@@ -156,4 +205,3 @@ public class Dendrogram
   }
 
 }
-
