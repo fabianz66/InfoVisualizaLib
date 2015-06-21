@@ -3,6 +3,7 @@
 // Creada por: Fabian Zamora Ramirez
 //------------------------------------------------------------------------------
   
+  
 public class CandelabrumNode
 {
   //Attributes
@@ -41,28 +42,38 @@ public class CandelabrumNode
   
   // @param pColor : the color for the current map. Number between 1 and 8.
   // @param pColorAlpha: 0 for transparent - 255 for complete opaque
-  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius, String pLabel, int pColor, int pColorAlpha, float pAngle)
+  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius, String pLabel, int pColor, int pColorAlpha, float pAngle, int pSymbolCode)
   {
-    int id = set.newShape();
-    set.setFillCode(id, pColor);
+    int id;    
     set.setStrokeCode(MAX_COLOR_VALUE);
-    set.setAlpha(id, pColorAlpha);
-    float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, 6.28, CHORD);      
-    for (int j=0; j<coords.length/2; j++) {
-      set.vertex(coords[j*2],coords[j*2+1]);
-    }            
+    if(pSymbolCode == -1 || pSymbolCode > MAX_SYMBOL_CODE)
+    {
+      //Dibuja el circulo
+      id = set.newShape();      
+      float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, 6.28, CHORD);      
+      for (int j=0; j<coords.length/2; j++) {
+        set.vertex(coords[j*2],coords[j*2+1]);
+      }            
+    }else {
+      
+      //Dibuja el symbolo en vez del circulo
+      id = set.newShape(GraphicSet.MARK);                  
+      set.vertex(pCenterX, pCenterY);
+      set.setSymbolCode(id,pSymbolCode);
+      
+      // setMarkAttr(int shapeId, float w, float h, float rotation, int location, int mode)
+      float scale = 1.5; 
+      set.setMarkAttr(id, pRadius*scale, pRadius*scale, pAngle, CENTER, GraphicSet.STATIC);
+    }
     
+    //Colores
+    set.setFillCode(id, pColor);    
+    set.setAlpha(id, pColorAlpha);    
+      
     //Add label
     if(pLabel != null) {
       set.setLabel(id, pLabel);
     }
-    
-    int id2 = set.newShape(GraphicSet.MARK);                  
-    set.vertex(pCenterX, pCenterY);
-    set.setSymbolCode(id2,7);
-    
-    // setMarkAttr(int shapeId, float w, float h, float rotation, int location, int mode) 
-    set.setMarkAttr(id2, pRadius, pRadius, pAngle, CENTER, GraphicSet.STATIC);
   }
   
   private void drawLine(GraphicSet set, float pStartX, float pStartY, float pFinishX, float pFinishY)
@@ -77,7 +88,7 @@ public class CandelabrumNode
    * Draws this node according to its children.
    * returns @{true} if success or @{false} is there was an error
   **/ 
-  public void draw(GraphicSet pSet, float pCenterX, float pCenterY, float pMaxValue, float pMinValue)
+  public void draw(GraphicSet pSet, float pCenterX, float pCenterY, float pMaxValue, float pMinValue, int pSymbolCode)
   {                  
     //Establece sus valores de color y de lable segun su VALOR.
     int colorValue = MIN_COLOR_VALUE;
@@ -87,7 +98,7 @@ public class CandelabrumNode
     }    
     
     //Se dibuja a si mismo
-    drawCircle(pSet, pCenterX, pCenterY, mRadius, mName, colorValue, 255, 0);
+    drawCircle(pSet, pCenterX, pCenterY, mRadius, mName, colorValue, 255, 0, pSymbolCode);
     
     //Dibuja a los hijos
     float currentAngle = 0;
@@ -95,7 +106,7 @@ public class CandelabrumNode
     for(int i=0; i < childrenCount; i++)
     {             
         //Manda a dibujar al hijo
-        mChildren.get(i).draw(pSet, pCenterX, pCenterY, currentAngle, mOrbitRadius, pMaxValue, pMinValue, true);
+        mChildren.get(i).draw(pSet, pCenterX, pCenterY, currentAngle, mOrbitRadius, pMaxValue, pMinValue, true, pSymbolCode);
         
         //Para dibujar el siguiente, se debe aumentar la mitad del angulo que acabamos de dibujar
         currentAngle += mChildrenAngles[i];
@@ -106,7 +117,7 @@ public class CandelabrumNode
    * Draws this node according to its children.
    * returns @{true} if success or @{false} is there was an error
   **/ 
-  public float draw(GraphicSet pSet, float pRootX, float pRootY, float pAngle, float pPrevOrbitRadius, float pMaxValue, float pMinValue, boolean pLastNode)
+  public float draw(GraphicSet pSet, float pRootX, float pRootY, float pAngle, float pPrevOrbitRadius, float pMaxValue, float pMinValue, boolean pLastNode, int pSymbolCode)
   {    
     
     //Dibuja la orbita
@@ -124,7 +135,7 @@ public class CandelabrumNode
     //Se dibuja a si mismo    
     float x = pRootX + cos (pAngle) * (pPrevOrbitRadius+mRadius);
     float y = pRootY + sin (pAngle) * (pPrevOrbitRadius+mRadius);
-    drawCircle(pSet, x, y, mRadius, mName, colorValue, 255, pAngle);
+    drawCircle(pSet, x, y, mRadius, mName, colorValue, 255, pAngle, pSymbolCode);
     
     //Manda a dibujar los hijos    
     float orbit = (pPrevOrbitRadius + mRadius*2);
@@ -133,7 +144,7 @@ public class CandelabrumNode
     {
       for(int i=0; i < childrenCount; i++)
       {      
-        orbit = mChildren.get(i).draw(pSet, pRootX, pRootY, pAngle, orbit, pMaxValue, pMinValue, pLastNode && i==(childrenCount-1));
+        orbit = mChildren.get(i).draw(pSet, pRootX, pRootY, pAngle, orbit, pMaxValue, pMinValue, pLastNode && i==(childrenCount-1), pSymbolCode);
       }
     }
     return orbit;

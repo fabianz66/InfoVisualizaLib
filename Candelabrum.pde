@@ -1,7 +1,8 @@
 
 //Constantes
-public static final float CAND_ROOT_NODE_RADIUS = 50;
-public static final float CAND_ROOT_NODE_ORBIT_RADIUS = 5;
+public static final float CAND_ROOT_NODE_RADIUS = 100;
+public static final float CAND_ROOT_NODE_ORBIT_RADIUS = 30;
+public static final float MAX_SYMBOL_CODE = 7;
 
   
 //------------------------------------------------------------------------------
@@ -16,6 +17,7 @@ public class Candelabrum extends Layer
   private float mCenterY;
   private float mMaxValue = -1;
   private float mMinValue = -1;
+  private int mSymbolCode = -1;
   
   /**
   * Constructor
@@ -109,17 +111,25 @@ public class Candelabrum extends Layer
     }
     
     //Carga los simbolos
-    SymbolTable symbols = new SymbolTable();
-    symbols.load("symboltable.txt");
-    pSet.setSymbolTable(symbols);
+    if(mSymbolCode != -1)
+    {
+      SymbolTable symbols = new SymbolTable();
+      symbols.load("symboltable.txt");
+      pSet.setSymbolTable(symbols);
+    }
     
     //Ajusta las orbitas y angulos de todos los nodos
     mRootNode.setRadius(CAND_ROOT_NODE_RADIUS);
     mRootNode.adjustOrbitRadius();
     
     //Comienza a dibujarse
-    mRootNode.draw(pSet, mCenterX, mCenterY, mMaxValue, mMinValue);
+    mRootNode.draw(pSet, mCenterX, mCenterY, mMaxValue, mMinValue, mSymbolCode);
     return true;
+  }
+  
+  public void setSymbolCode(int pSymbolCode)
+  {
+    mSymbolCode = pSymbolCode;
   }
   
   /**
