@@ -10,12 +10,12 @@ void setup() {
 //  EjemploCSV01();
 //  EjemploCSV02();
 //  EjemploCSV03();
-//  EjemploJSON01();
+  EjemploJSON01();
 //  EjemploJSON02();
 //  EjemploJSON03();
 //  EjemploJSON04();
 //  EjemploDendrogram("Species4.csv",50,Dendrogram.POLAR);
-    EjemploCandelabro();
+//    EjemploCandelabro();
 }
 
 //------------------------------------------------------------------------------
@@ -167,6 +167,7 @@ void EjemploJSON01(){
   if(tree.loadJSON("json01.json")) {
     
     //Si hubo exito, se manda a dibujar el arbol
+    tree.setSymbolCode(6);
     tree.draw(set);
   }  
   

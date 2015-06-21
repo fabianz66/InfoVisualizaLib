@@ -17,6 +17,7 @@ public class DiscTree extends Layer
   private float mCenterY;
   private float mMaxValue = -1;
   private float mMinValue = -1;
+  private int mSymbolCode = -1;
   
   /**
   * Constructor
@@ -169,12 +170,25 @@ public class DiscTree extends Layer
       return false;
     }
     
+    //Carga los simbolos
+    if(mSymbolCode != -1)
+    {
+      SymbolTable symbols = new SymbolTable();
+      symbols.load("symboltable.txt");
+      pSet.setSymbolTable(symbols);
+    }
+    
     //Ajusta las orbitas y angulos de todos los nodos
     mRootNode.setOrbitRadius(ROOT_NODE_ORBIT_RADIUS);
     
     //Comienza a dibujarse
-    mRootNode.draw(pSet, mCenterX, mCenterY, mMaxValue, mMinValue);
+    mRootNode.draw(pSet, mCenterX, mCenterY, mMaxValue, mMinValue, mSymbolCode);
     return true;
+  }
+  
+  public void setSymbolCode(int pSymbolCode)
+  {
+    mSymbolCode = pSymbolCode;
   }
   
   /**
