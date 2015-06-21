@@ -1,6 +1,6 @@
 static class DendrogramCluster{
   static float MAX_VAL= 0;
-  static float VAL_SCALE =2;
+  static float VAL_SCALE =1;
   int cid;
   DendrogramCluster child_node_1;
   DendrogramCluster child_node_2;
