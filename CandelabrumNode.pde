@@ -72,6 +72,16 @@ public class CandelabrumNode
   **/ 
   public void draw(GraphicSet pSet, float pCenterX, float pCenterY, float pMaxValue, float pMinValue)
   {                  
+    //Establece sus valores de color y de lable segun su VALOR.
+    int colorValue = MIN_COLOR_VALUE;
+    if(mValue != -1) //Has a valid value
+    {
+      colorValue = (int)map(mValue, pMinValue, pMaxValue, MIN_COLOR_VALUE, MAX_COLOR_VALUE);
+    }    
+    
+    //Se dibuja a si mismo
+    drawCircle(pSet, pCenterX, pCenterY, mRadius, mName, colorValue, 255);
+    
     //Dibuja a los hijos
     float currentAngle = 0;
     int childrenCount = mChildren.size();
@@ -83,40 +93,15 @@ public class CandelabrumNode
         //Para dibujar el siguiente, se debe aumentar la mitad del angulo que acabamos de dibujar
         currentAngle += mChildrenAngles[i];
     }
-    
-      //Establece sus valores de color y de lable segun su VALOR.
-    int colorValue = MIN_COLOR_VALUE;
-    if(mValue != -1) //Has a valid value
-    {
-      colorValue = (int)map(mValue, pMinValue, pMaxValue, MIN_COLOR_VALUE, MAX_COLOR_VALUE);
-    }    
-    
-    //Se dibuja a si mismo
-    drawCircle(pSet, pCenterX, pCenterY, mRadius, mName, colorValue, 255);
   }
   
   /**
    * Draws this node according to its children.
    * returns @{true} if success or @{false} is there was an error
   **/ 
-  public void draw(GraphicSet pSet, float pRootX, float pRootY, float pAngle, float pPrevOrbitRadius, float pMaxValue, float pMinValue)
+  public float draw(GraphicSet pSet, float pRootX, float pRootY, float pAngle, float pPrevOrbitRadius, float pMaxValue, float pMinValue)
   {    
-    //Manda a dibujar los hijos
-    float orbit = (pPrevOrbitRadius + mRadius*4);
-    int childrenCount = mChildren.size();
-    if(childrenCount == 0)
-    {
-      //Dibuja la orbita
-//      drawCircle(pSet, pRootX, pRootY, orbit, null, 0, 0);
-    }else
-    {
-      for(int i=0; i < childrenCount; i++)
-      {      
-        mChildren.get(i).draw(pSet, pRootX, pRootY, pAngle, orbit, pMaxValue, pMinValue);
-      }
-    }
-    
-    //Establece sus valores de color y de lable segun su VALOR.
+    //Establece sus valores de color y de lable segun su VALOR.    
     int colorValue = MIN_COLOR_VALUE;
     if(mValue != -1) //Has a valid value
     {
@@ -124,9 +109,21 @@ public class CandelabrumNode
     }    
     
     //Se dibuja a si mismo    
-    float x = pRootX + cos (pAngle) * orbit;
-    float y = pRootY + sin (pAngle) * orbit;
+    float x = pRootX + cos (pAngle) * (pPrevOrbitRadius+mRadius);
+    float y = pRootY + sin (pAngle) * (pPrevOrbitRadius+mRadius);
     drawCircle(pSet, x, y, mRadius, mName, colorValue, 255);
+    
+    //Manda a dibujar los hijos    
+    float orbit = (pPrevOrbitRadius + mRadius*2);
+    int childrenCount = mChildren.size();
+    if(childrenCount != 0)
+    {
+      for(int i=0; i < childrenCount; i++)
+      {      
+        orbit = mChildren.get(i).draw(pSet, pRootX, pRootY, pAngle, orbit, pMaxValue, pMinValue);
+      }
+    }
+    return orbit;
   }
   
   //------------------------------------------------------------------------------
@@ -145,7 +142,7 @@ public class CandelabrumNode
     
     //Establece la orbita a los hijos, en caso de que tengan hijos
     for(CandelabrumNode child : mChildren) {
-       child.setRadius(pRadius*0.75);
+       child.setRadius(pRadius*0.5);
     }
   }
   

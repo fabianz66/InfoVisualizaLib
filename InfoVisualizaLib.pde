@@ -317,7 +317,7 @@ void EjemploCandelabro()
   tree.setVisualSet(set);
   
   //Intenta cargar el archivo
-  if(tree.loadJSON("json01.json")) {
+  if(tree.loadJSON("json04.json")) {
     
     //Si hubo exito, se manda a dibujar el arbol
     tree.debug();
