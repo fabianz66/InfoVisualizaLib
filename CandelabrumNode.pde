@@ -41,7 +41,7 @@ public class CandelabrumNode
   
   // @param pColor : the color for the current map. Number between 1 and 8.
   // @param pColorAlpha: 0 for transparent - 255 for complete opaque
-  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius, String pLabel, int pColor, int pColorAlpha)
+  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius, String pLabel, int pColor, int pColorAlpha, float pAngle)
   {
     int id = set.newShape();
     set.setFillCode(id, pColor);
@@ -56,6 +56,13 @@ public class CandelabrumNode
     if(pLabel != null) {
       set.setLabel(id, pLabel);
     }
+    
+    int id2 = set.newShape(GraphicSet.MARK);                  
+    set.vertex(pCenterX, pCenterY);
+    set.setSymbolCode(id2,7);
+    
+    // setMarkAttr(int shapeId, float w, float h, float rotation, int location, int mode) 
+    set.setMarkAttr(id2, pRadius, pRadius, pAngle, CENTER, GraphicSet.STATIC);
   }
   
   private void drawLine(GraphicSet set, float pStartX, float pStartY, float pFinishX, float pFinishY)
@@ -80,7 +87,7 @@ public class CandelabrumNode
     }    
     
     //Se dibuja a si mismo
-    drawCircle(pSet, pCenterX, pCenterY, mRadius, mName, colorValue, 255);
+    drawCircle(pSet, pCenterX, pCenterY, mRadius, mName, colorValue, 255, 0);
     
     //Dibuja a los hijos
     float currentAngle = 0;
@@ -117,7 +124,7 @@ public class CandelabrumNode
     //Se dibuja a si mismo    
     float x = pRootX + cos (pAngle) * (pPrevOrbitRadius+mRadius);
     float y = pRootY + sin (pAngle) * (pPrevOrbitRadius+mRadius);
-    drawCircle(pSet, x, y, mRadius, mName, colorValue, 255);
+    drawCircle(pSet, x, y, mRadius, mName, colorValue, 255, pAngle);
     
     //Manda a dibujar los hijos    
     float orbit = (pPrevOrbitRadius + mRadius*2);

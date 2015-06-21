@@ -108,6 +108,11 @@ public class Candelabrum extends Layer
       return false;
     }
     
+    //Carga los simbolos
+    SymbolTable symbols = new SymbolTable();
+    symbols.load("symboltable.txt");
+    pSet.setSymbolTable(symbols);
+    
     //Ajusta las orbitas y angulos de todos los nodos
     mRootNode.setRadius(CAND_ROOT_NODE_RADIUS);
     mRootNode.adjustOrbitRadius();
