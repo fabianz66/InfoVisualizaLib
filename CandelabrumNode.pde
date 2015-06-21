@@ -88,7 +88,7 @@ public class CandelabrumNode
     for(int i=0; i < childrenCount; i++)
     {             
         //Manda a dibujar al hijo
-        mChildren.get(i).draw(pSet, pCenterX, pCenterY, currentAngle, mOrbitRadius, pMaxValue, pMinValue);
+        mChildren.get(i).draw(pSet, pCenterX, pCenterY, currentAngle, mOrbitRadius, pMaxValue, pMinValue, true);
         
         //Para dibujar el siguiente, se debe aumentar la mitad del angulo que acabamos de dibujar
         currentAngle += mChildrenAngles[i];
@@ -99,8 +99,14 @@ public class CandelabrumNode
    * Draws this node according to its children.
    * returns @{true} if success or @{false} is there was an error
   **/ 
-  public float draw(GraphicSet pSet, float pRootX, float pRootY, float pAngle, float pPrevOrbitRadius, float pMaxValue, float pMinValue)
+  public float draw(GraphicSet pSet, float pRootX, float pRootY, float pAngle, float pPrevOrbitRadius, float pMaxValue, float pMinValue, boolean pLastNode)
   {    
+    
+    //Dibuja la orbita
+//    if(mChildren.size()==0 && pLastNode){
+//      drawCircle(pSet, pRootX, pRootY, pPrevOrbitRadius+mRadius, mName, MAX_COLOR_VALUE, 0);
+//    }
+      
     //Establece sus valores de color y de lable segun su VALOR.    
     int colorValue = MIN_COLOR_VALUE;
     if(mValue != -1) //Has a valid value
@@ -120,7 +126,7 @@ public class CandelabrumNode
     {
       for(int i=0; i < childrenCount; i++)
       {      
-        orbit = mChildren.get(i).draw(pSet, pRootX, pRootY, pAngle, orbit, pMaxValue, pMinValue);
+        orbit = mChildren.get(i).draw(pSet, pRootX, pRootY, pAngle, orbit, pMaxValue, pMinValue, pLastNode && i==(childrenCount-1));
       }
     }
     return orbit;
