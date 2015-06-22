@@ -1,6 +1,7 @@
 static class DendrogramCluster{
   static float MAX_VAL= 0;
-  static float VAL_SCALE =1;
+  static float VAL_SCALE =50;
+  static float MIN_VALUE = 25;
   int cid;
   DendrogramCluster child_node_1;
   DendrogramCluster child_node_2;
@@ -16,7 +17,7 @@ static class DendrogramCluster{
     this.isLeaf=false;
     this.Value = abs((node_1.Value+node_2.Value)/2);
     
-    this.Similarity = abs(node_1.Value-node_2.Value)+VAL_SCALE;
+    this.Similarity = abs(node_1.Value-node_2.Value)+MIN_VALUE;
     MAX_VAL = (this.Similarity <= MAX_VAL)? MAX_VAL : this.Similarity;
     this.leafName = "("+child_node_1.leafName + "," + child_node_2.leafName+",["+this.Similarity+"])";
     this.children_count+=node_1.children_count+node_2.children_count;

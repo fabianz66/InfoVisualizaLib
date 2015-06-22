@@ -7,6 +7,7 @@ public class Dendrogram
   int Y_RANGE = 1500;
   GraphicSet Graphic_Set;
   SymbolTable symbols;
+  ColorMap map;
   
   
   GraphicSet getGraphics()
@@ -36,10 +37,10 @@ public class Dendrogram
     symbols = new SymbolTable();
     symbols.load("symboltable.txt");
     Graphic_Set.setSymbolTable(symbols);
-    ColorMap map = new ColorMap();
+    map = new ColorMap();
     map.load("colormap3.txt");
     Graphic_Set.setColorMap(map);
-    
+    Graphic_Set.strokeCode = 255;
     mi = millis();
     if (TYPE == POLAR)
     {
@@ -112,7 +113,7 @@ public class Dendrogram
       Graphic_Set.setSymbolCode(i,7);
       Graphic_Set.setLabel(i, clustered_tree.leafName);
       Graphic_Set.setMarkAttr(i, 80, 80, x,  CENTER, GraphicSet.STATIC);
-      Graphic_Set.setFillCode(i,int(clustered_tree.Value));
+      Graphic_Set.setFillCode(i,getColor(clustered_tree.Value));
       i = Graphic_Set.newShape(GraphicSet.PATH);
       Graphic_Set.vertex(xr,yr);
       xr = (Y_RANGE-y-leaf_length)*cos(x);
@@ -141,7 +142,7 @@ public class Dendrogram
       float draw_next_right_x = (Y_RANGE-right_child_height) * cos(center_right);
       float draw_next_right_y = (Y_RANGE-right_child_height) * sin(center_right);
       Graphic_Set.vertex(draw_next_left_x,draw_next_left_y);
-      
+
       int j;
       for (j=0; j<(coords.length/2)-1; j++)
       {
@@ -153,18 +154,23 @@ public class Dendrogram
       Graphic_Set.vertex(draw_next_left_x,draw_next_left_y);
       Graphic_Set.setMarkAttr(i, left_child_height+40,left_child_height+40, center_left,  CENTER, GraphicSet.STATIC);
       Graphic_Set.setLabel(i,str(clustered_tree.child_node_1.Value));
-      Graphic_Set.setSymbolCode(i,6);
-      Graphic_Set.setFillCode(i,int(clustered_tree.child_node_1.Value));
+      Graphic_Set.setSymbolCode(i,5);
+      Graphic_Set.setFillCode(i,getColor(clustered_tree.child_node_1.Value));
       
       i = Graphic_Set.newShape(GraphicSet.MARK);
       Graphic_Set.vertex(draw_next_right_x,draw_next_right_y);
-      Graphic_Set.setSymbolCode(i,6);
-      Graphic_Set.setFillCode(i,int(clustered_tree.child_node_2.Value));
+      Graphic_Set.setSymbolCode(i,5);
+      Graphic_Set.setFillCode(i,getColor(clustered_tree.child_node_2.Value));
       Graphic_Set.setMarkAttr(i, right_child_height+40,right_child_height+40, center_right,  CENTER, GraphicSet.STATIC);
       Graphic_Set.setLabel(i,str(clustered_tree.child_node_2.Value));
       paintPolarDendrogram(clustered_tree.child_node_1,x_1,right_child_center-((total_range/total_children)*right_children)/2,left_child_height); //se invierten las similitudes
       paintPolarDendrogram(clustered_tree.child_node_2,right_child_center-((total_range/total_children)*right_children)/2,x_2,right_child_height);
     }
+  }
+  
+  int getColor(float value)
+  {
+    return round(map(value,0,DendrogramCluster.MAX_VAL,0,map.colorCount-1));
   }
   
   float calculateCenter(DendrogramCluster clustered_tree,float x_1, float x_2)

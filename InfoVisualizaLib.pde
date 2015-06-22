@@ -55,7 +55,8 @@ void EjemploCandelabro(String pFilename, int pSymbolCode)
 void EjemploDendrogram(String filename, float scale,int type){
   size(1000, 1000);
   app = new GraphicApp(990, 990);
-  View view = new View(10, 10, 990, 990);
+  View view = new View(0, 0, 990, 990);
+  view.fill = 255;
   Layer layer = new Layer(0, 0, 1000,1000);
   GraphicSet set = new GraphicSet();
   Dendrogram dendro = new Dendrogram();
