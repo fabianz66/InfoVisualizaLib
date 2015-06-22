@@ -16,6 +16,9 @@ void setup() {
 //    EjemploCandelabro("json02.json",5);
 //    EjemploCandelabro("json03.json",4);
 //    EjemploCandelabro("json04.json",3);
+//    EjemploCandelabro2("json05.json",6);
+//    EjemploCandelabro2("json06.json",5);
+//    EjemploCandelabro2("json07.json",4);
 }
 
 void EjemploCandelabro(String pFilename, int pSymbolCode)
@@ -76,6 +79,75 @@ size(SCREEN_WIDTH, SCREEN_HEIGHT);
   view.add(layer);
   view.zoomToExtent(layer.getExtent());
   app.add(view);
+}
+
+void EjemploCandelabro2(String pFilename, int pSymbolCode)
+{
+  size(640, 480);
+  app = new GraphicApp(640, 480);
+  View view = new View(10, 10, 620, 460);
+  Layer layer = new Layer(0, 0, 600, 450);
+  GraphicSet set = new GraphicSet();
+  SymbolTable table = new SymbolTable();
+  table.load("symboltable.txt");
+  set.setSymbolTable(table);
+  ColorMap col = new ColorMap();
+  col.load("colormap3.txt");
+  set.setColorMap(col);
+  set.strokeCode=col.colorCount-1;
+  inicializarCandelabro(set,pFilename,pSymbolCode);
+  layer.setVisualSet(set);
+  view.add(layer);
+  view.zoomToExtent(layer.getExtent());
+  app.add(view);
+}
+
+void inicializarCandelabro(GraphicSet set,String pFilename, int pSymbolCode)
+{
+  CandelabrumFrontView  frontView = new CandelabrumFrontView(set,pSymbolCode);
+  JSONObject json = loadJSONObject(pFilename); //root
+  Node rootNode = new Node(json.getString("name"));
+  rootNode.setParent(rootNode);
+  rootNode.setLevel(0);
+  rootNode.setAngle(0);
+  readJSON(json,rootNode,frontView);
+  frontView.setRootNode(rootNode);
+  frontView.getRootNode().setCoordenates(width/2, height/2);
+
+  frontView.goOverTree(rootNode);
+}
+
+void readJSON(JSONObject json, Node parentNode, CandelabrumFrontView frontView)
+{
+  JSONArray children; 
+  try {
+    children = json.getJSONArray("children");
+  } catch (Exception  e) 
+  {
+    children=null;
+  }
+  if(children!=null)
+  {
+    parentNode.createChildrenList(children.size());
+    for(int i=0;i<children.size();i++)
+    {
+      JSONObject child = children.getJSONObject(i);
+      Node newNode = new Node(child.getString("name"));
+      parentNode.setChild(newNode,i);
+      newNode.setParent(parentNode);
+      newNode.setColor(int(random(30)));
+      newNode.setLevel(parentNode.getLevel()+1);
+      if(newNode.getLevel()>frontView.getHigherLevel())
+      {
+        frontView.setHigherLevel(newNode.getLevel());
+      }
+      readJSON(child,newNode,frontView);
+    }
+  }
+  else
+  {
+    parentNode.setEmptyChildren();
+  }
 }
 
 void draw() {
