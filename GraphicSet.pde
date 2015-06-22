@@ -137,10 +137,12 @@ public class GraphicSet extends VisualSet {
   }
   
   void setAlpha(int shapeId, int _alpha) {
-    if (alphas==null)
+    if (alphas==null){
       alphas = new int[MAX_SHAPES];
-    for (int i=0; i<MAX_SHAPES;i++)
-      alphas[i]= 255;
+      for (int i=0; i<MAX_SHAPES;i++){
+        alphas[i]= 255;
+      }
+    }
     alphas[shapeId] = _alpha;
   }
 

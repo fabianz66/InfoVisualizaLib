@@ -65,15 +65,32 @@ public class DiscTreeNode
   
   // @param pColor : the color for the current map. Number between 1 and 8.
   // @param pColorAlpha: 0 for transparent - 255 for complete opaque
-  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius, String pLabel, int pColor, int pColorAlpha)
+  private void drawCircle(GraphicSet set, float pCenterX, float pCenterY, float pRadius, String pLabel, int pColor, int pColorAlpha, int pSymbolCode)
   {
-    int id = set.newShape();
+    int id;
+    if(pSymbolCode != -1 && pSymbolCode < MAX_SYMBOL_CODE)
+    {
+      //Dibuja el symbolo en vez del circulo
+      id = set.newShape(GraphicSet.MARK);                  
+      set.vertex(pCenterX, pCenterY);
+      set.setSymbolCode(id,pSymbolCode);
+      
+      // setMarkAttr(int shapeId, float w, float h, float rotation, int location, int mode)
+      float scale = 5; 
+      set.setMarkAttr(id, pRadius*scale, pRadius*scale, 90, CENTER, GraphicSet.STATIC);      
+    }else
+    {
+      //Dibuja un circulo
+      id = set.newShape();
+      float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, 6.28, CHORD);      
+      for (int j=0; j<coords.length/2; j++) {
+        set.vertex(coords[j*2],coords[j*2+1]);
+      }  
+    }
+
+    //Colores    
     set.setFillCode(id, pColor);
-    set.setAlpha(id, pColorAlpha);
-    float[] coords = set.arc(pCenterX, pCenterY, pRadius, 0, 6.28, CHORD);      
-    for (int j=0; j<coords.length/2; j++) {
-      set.vertex(coords[j*2],coords[j*2+1]);
-    }            
+    set.setAlpha(id, pColorAlpha);              
     
     //Add label
     if(pLabel != null) {
@@ -93,12 +110,12 @@ public class DiscTreeNode
    * Draws this node according to its children.
    * returns @{true} if success or @{false} is there was an error
   **/ 
-  public void draw(GraphicSet pSet, float pCenterX, float pCenterY, float mMaxValue, float mMinValue)
+  public void draw(GraphicSet pSet, float pCenterX, float pCenterY, float pMaxValue, float pMinValue, int pSymbolCode)
   {
         
     //Dibuja la orbita si tiene hijos
     if(mChildren.size() != 0) {
-        drawCircle(pSet, pCenterX, pCenterY, mOrbitRadius, null, 0, 0);
+        drawCircle(pSet, pCenterX, pCenterY, mOrbitRadius, null, 0, 0, -1);
     }
     
     //Dibuja a los hijos
@@ -119,7 +136,7 @@ public class DiscTreeNode
       drawLine(pSet, pCenterX, pCenterY, childX, childY);
       
       //Manda a dibujar al hijo
-      mChildren.get(i).draw(pSet, childX, childY, mMaxValue, mMinValue);
+      mChildren.get(i).draw(pSet, childX, childY, pMaxValue, pMinValue, pSymbolCode);
       
       //Para dibujar el siguiente, se debe aumentar la mitad del angulo que acabamos de dibujar
       currentAngle += mChildrenAngles[i]/2;
@@ -130,12 +147,12 @@ public class DiscTreeNode
     String label = mName;
     if(mValue != -1) //Has a valid value
     {
-      colorValue = (int)map(mValue, mMinValue, mMaxValue, MIN_COLOR_VALUE, MAX_COLOR_VALUE);
+      colorValue = (int)map(mValue, pMinValue, pMaxValue, MIN_COLOR_VALUE, MAX_COLOR_VALUE);
       label += "," + str(mValue);
     }    
     
     //Se dibuja a si mismo
-    drawCircle(pSet, pCenterX, pCenterY, SINGLE_NODE_DIAMETER/2, label, colorValue, 255);
+    drawCircle(pSet, pCenterX, pCenterY, SINGLE_NODE_DIAMETER/2, label, colorValue, 255, pSymbolCode);
   }
   
   //------------------------------------------------------------------------------

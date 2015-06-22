@@ -1,18 +1,18 @@
- 
+
 //Constantes
-public static final float ROOT_NODE_ORBIT_RADIUS = 100;
-public static final float SINGLE_NODE_DIAMETER = 10;
-public static final int MIN_COLOR_VALUE = 0;
-public static final int MAX_COLOR_VALUE = 8;
+public static final float CAND_ROOT_NODE_RADIUS = 100;
+public static final float CAND_ROOT_NODE_ORBIT_RADIUS = 30;
+public static final float MAX_SYMBOL_CODE = 7;
+
   
 //------------------------------------------------------------------------------
 // Representa un arbol en disco
 // Creada por: Fabian Zamora Ramirez
 //------------------------------------------------------------------------------
-public class DiscTree extends Layer
+public class Candelabrum extends Layer
 {
   //Attributes. Global node. There can only be one.
-  private DiscTreeNode mRootNode; 
+  private CandelabrumNode mRootNode; 
   private float mCenterX;
   private float mCenterY;
   private float mMaxValue = -1;
@@ -22,71 +22,11 @@ public class DiscTree extends Layer
   /**
   * Constructor
   */
-  DiscTree(int x, int y, int w, int h) {
+  Candelabrum(int x, int y, int w, int h) {
     super(x, y, w, h);    
     mCenterX = x + w/2;
     mCenterY = y + h/2;
   }
-  
-  /**
-  * INCOMPLETE. Values are not read.
-  * Loads the hierarchy from a column separated file.
-  * Files must have only one global line at the beginning. (1 without a parent)
-  * All the other lines must have a previously created parent. If a parent is not found, that line is ommitted.
-  * returns @{true} if success or @{false} is there was an error loading the file
-  */
-  public boolean load(String pFilename, String pDelimeter)
-  {        
-    //Iterate over the lines to generate the tree with nodes.
-    String[] lines = loadStrings(pFilename);
-    int linesCount = lines.length;
-    println("linesCount:", linesCount);
-    for(int lpos=0; lpos < linesCount; lpos++)
-    {
-      //Get the number of columns for each line
-      println("line:", lines[lpos]);
-      String[] columns = split(lines[lpos], pDelimeter);
-      int columnsCount = columns.length;
-      
-      //According to the number of columns, it creates a child or the root node.
-      //Files must be in the hierarchy order. Global, Global-Children, Global-Children-Children and so on.
-      if(columnsCount == 2)
-      {        
-        if(mRootNode != null)
-        {
-          //We are about to add a children
-          String childName = columns[0].trim();
-          String parentName = columns[1].trim();
-          float childValue = -1.0;
-          if(!mRootNode.insert(parentName, childName, childValue)) {
-            println("Error." + parentName + " not found. " + childName + " was ommitted.");
-          }
-        }else
-        {
-          println("Error. Root row (1 column) must be the first one.");
-          return false;
-        }
-        
-      }else if(columnsCount == 1 && mRootNode == null) 
-      {       
-        //Create root node
-        mRootNode = new DiscTreeNode(columns[0], 0.0);        
-      }else if(columnsCount == 1 && mRootNode != null) 
-      {       
-        //Error. There can only be one Global node.
-        println("Error. Only one row can be global (1 column)");
-        return false;       
-      }
-    }
-    
-    //Check if root node was successfully created
-    if(mRootNode != null) {
-      return true;
-    }else {    
-      println("RootNode not created");
-      return false;
-    }
-  }  
   
   /**
   * Loads the hierarchy from a JSON file.
@@ -121,7 +61,7 @@ public class DiscTree extends Layer
   * Creates a node with all its children from a JSONObject
   * @returns the created node with all its children  
   */
-  private DiscTreeNode nodeFromJSONObject(JSONObject pObject)
+  private CandelabrumNode nodeFromJSONObject(JSONObject pObject)
   {
     //Get values
     String nodeLabel = pObject.getString("name", "");
@@ -135,14 +75,14 @@ public class DiscTree extends Layer
     }
         
     //Create node
-    DiscTreeNode node = new DiscTreeNode(nodeLabel, nodeValue);
+    CandelabrumNode node = new CandelabrumNode(nodeLabel, nodeValue);
     
     //Add children if any
     try{      
       JSONArray children = pObject.getJSONArray("children");
       for(int i=0; i < children.size(); i++)
       {
-        DiscTreeNode child = nodeFromJSONObject(children.getJSONObject(i));
+        CandelabrumNode child = nodeFromJSONObject(children.getJSONObject(i));
         node.addChild(child);
       }
     }catch(Exception e)
@@ -179,7 +119,8 @@ public class DiscTree extends Layer
     }
     
     //Ajusta las orbitas y angulos de todos los nodos
-    mRootNode.setOrbitRadius(ROOT_NODE_ORBIT_RADIUS);
+    mRootNode.setRadius(CAND_ROOT_NODE_RADIUS);
+    mRootNode.adjustOrbitRadius();
     
     //Comienza a dibujarse
     mRootNode.draw(pSet, mCenterX, mCenterY, mMaxValue, mMinValue, mSymbolCode);
