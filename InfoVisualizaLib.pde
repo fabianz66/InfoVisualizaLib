@@ -8,7 +8,10 @@ GraphicApp app;
 
 void setup() {
 
-//  EjemploDendrogram("Species4.csv",50,Dendrogram.POLAR);
+//    EjemploDendrogram("Species4.csv",50,Dendrogram.POLAR,"colormap4.txt",6);
+//    EjemploDendrogram("Species2.csv",4.5,Dendrogram.POLAR,"colormap2.txt",5);
+//    EjemploDendrogram("Species1.csv",25,Dendrogram.POLAR,"colormap.txt",4);
+//    EjemploDendrogram("Species3.csv",40,Dendrogram.POLAR,"colormap3.txt",4);
 //    EjemploCandelabro("json01.json",6);
 //    EjemploCandelabro("json02.json",5);
 //    EjemploCandelabro("json03.json",4);
@@ -52,14 +55,20 @@ void EjemploCandelabro(String pFilename, int pSymbolCode)
   app.add(view); 
 }
 
-void EjemploDendrogram(String filename, float scale,int type){
-  size(1000, 1000);
-  app = new GraphicApp(990, 990);
-  View view = new View(0, 0, 990, 990);
+void EjemploDendrogram(String filename, float scale,int type, String colormap, int symbolCode){
+size(SCREEN_WIDTH, SCREEN_HEIGHT);
+  app = new GraphicApp(SCREEN_WIDTH,SCREEN_HEIGHT);  
+  int view_W = SCREEN_WIDTH - SCREEN_MARGIN*2;
+  int view_H = SCREEN_HEIGHT - SCREEN_MARGIN*2;
+  View view = new View(SCREEN_MARGIN,SCREEN_MARGIN,view_W,view_H);
   view.fill = 255;
-  Layer layer = new Layer(0, 0, 1000,1000);
+  Layer layer = new Layer(0, 0, SCREEN_WIDTH,SCREEN_HEIGHT);
   GraphicSet set = new GraphicSet();
+  ColorMap map = new ColorMap();
+  map.load(colormap);
+  set.setColorMap(map);
   Dendrogram dendro = new Dendrogram();
+  dendro.symbolCode = symbolCode;
   dendro.setGraphics(set);
   dendro.paintDendrogram(filename,scale, type);
   dendro.getGraphics().update();

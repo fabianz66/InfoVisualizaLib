@@ -8,6 +8,7 @@ public class Dendrogram
   GraphicSet Graphic_Set;
   SymbolTable symbols;
   ColorMap map;
+  int symbolCode = 0 ;
   
   
   GraphicSet getGraphics()
@@ -37,9 +38,7 @@ public class Dendrogram
     symbols = new SymbolTable();
     symbols.load("symboltable.txt");
     Graphic_Set.setSymbolTable(symbols);
-    map = new ColorMap();
-    map.load("colormap3.txt");
-    Graphic_Set.setColorMap(map);
+    map = Graphic_Set.colorMap;
     Graphic_Set.strokeCode = 255;
     mi = millis();
     if (TYPE == POLAR)
@@ -154,12 +153,12 @@ public class Dendrogram
       Graphic_Set.vertex(draw_next_left_x,draw_next_left_y);
       Graphic_Set.setMarkAttr(i, left_child_height+40,left_child_height+40, center_left,  CENTER, GraphicSet.STATIC);
       Graphic_Set.setLabel(i,str(clustered_tree.child_node_1.Value));
-      Graphic_Set.setSymbolCode(i,5);
+      Graphic_Set.setSymbolCode(i,symbolCode);
       Graphic_Set.setFillCode(i,getColor(clustered_tree.child_node_1.Value));
       
       i = Graphic_Set.newShape(GraphicSet.MARK);
       Graphic_Set.vertex(draw_next_right_x,draw_next_right_y);
-      Graphic_Set.setSymbolCode(i,5);
+      Graphic_Set.setSymbolCode(i,symbolCode);
       Graphic_Set.setFillCode(i,getColor(clustered_tree.child_node_2.Value));
       Graphic_Set.setMarkAttr(i, right_child_height+40,right_child_height+40, center_right,  CENTER, GraphicSet.STATIC);
       Graphic_Set.setLabel(i,str(clustered_tree.child_node_2.Value));
